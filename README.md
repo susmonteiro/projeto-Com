@@ -3,16 +3,27 @@
 
 ---
 ## Indice
-- [Linguagem FIR](#linguagem-fir)
+- [Projeto de Compiladores](#projeto-de-compiladores)
+    - [Ver **Enunciado** e [**Avaliação**](https://web.tecnico.ulisboa.pt/~david.matos/w/pt/index.php/Compiladores/Projecto_de_Compiladores)](#ver-enunciado-e-avaliação)
+  - [Indice](#indice)
+  - [Linguagem FIR](#linguagem-fir)
     - [Tipos de Dados](#tipos-de-dados)
-    - [Manipulação de Nomes](#mainpulação-de-nomes)
+  - [- **ponteiros** - endereços, 4 bytes](#--ponteiros---endereços-4-bytes)
+    - [Manipulação de Nomes](#manipulação-de-nomes)
     - [Convenções Lexicais](#convenções-lexicais)
-    - [Estrutura/Sintaxe](#estrutura/sintaxe)
+      - [**Caracteres brancos**](#caracteres-brancos)
+      - [**Comentários**](#comentários)
+      - [**Palavras chave**](#palavras-chave)
+      - [**Tipos**](#tipos)
+      - [**Delimitadores e terminadores**](#delimitadores-e-terminadores)
+      - [**Identificadores (nomes)**](#identificadores-nomes)
+    - [Estrutura/Sintaxe](#estruturasintaxe)
     - [Especificação das Funções](#especificação-das-funções)
     - [Semântica das Instruções](#semântica-das-instruções)
     - [Semântica das Expressões](#semântica-das-expressões)
-- [Entrega Inicial](#entrega-inicial)
-- [Hints](#hints)
+  - [Entrega Inicial - dia 2021/03/22 17:00](#entrega-inicial---dia-20210322-1700)
+  - [Commitar com CVS](#commitar-com-cvs)
+  - [Hints](#hints)
 
 ---
 ---
@@ -75,6 +86,15 @@ Podem ser seguidos por um 0 (zero), mais letras, dígitos ou `_` (sublinhado)
 Nesta fase, além da estrutura básica do compilador, todas as classes dos nós da linguagem, assim como os esqueletos dos "visitors" (xml_writer, postfix_writer, etc.) devem estar implementados. Não é ainda necessário ter implementado nenhum código de análise lexical, sintáctica ou semântica.
 
 > ver pauta de avaliação, ainda não disponível (?)
+
+## Commitar com CVS
+A informação do CVS foi retirada deste repositório para evitar conflitos.
+
+Para commitar com o CVS:
+1. Fazer novamente checkout do repositório para outra diretoria;
+2. Copiar o conteúdo deste repositório para cima dessa diretoria, mergindo as subpastas;
+3. Commitar a partir dessa diretoria.
+
 ## Hints
 - CDK16 da wiki não está 100% correta
 - não mexer nos if-then-else que estão no CVS porque "não há outra forma de fazer"
