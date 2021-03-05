@@ -4,11 +4,10 @@
 ---
 ## Indice
 - [Projeto de Compiladores](#projeto-de-compiladores)
-    - [Ver **Enunciado** e [**Avaliação**](https://web.tecnico.ulisboa.pt/~david.matos/w/pt/index.php/Compiladores/Projecto_de_Compiladores)](#ver-enunciado-e-avaliação)
+    - [Ver Enunciado e Avaliação](#ver-enunciado-e-avaliação)
   - [Indice](#indice)
   - [Linguagem FIR](#linguagem-fir)
     - [Tipos de Dados](#tipos-de-dados)
-  - [- **ponteiros** - endereços, 4 bytes](#--ponteiros---endereços-4-bytes)
     - [Manipulação de Nomes](#manipulação-de-nomes)
     - [Convenções Lexicais](#convenções-lexicais)
       - [**Caracteres brancos**](#caracteres-brancos)
@@ -17,7 +16,7 @@
       - [**Tipos**](#tipos)
       - [**Delimitadores e terminadores**](#delimitadores-e-terminadores)
       - [**Identificadores (nomes)**](#identificadores-nomes)
-    - [Estrutura/Sintaxe](#estruturasintaxe)
+    - [Estrutura/Sintaxe](##estrutura/sintaxe-=-gramática)
     - [Especificação das Funções](#especificação-das-funções)
     - [Semântica das Instruções](#semântica-das-instruções)
     - [Semântica das Expressões](#semântica-das-expressões)
@@ -26,9 +25,8 @@
   - [Hints](#hints)
 
 ---
----
 ## Linguagem FIR
-FIR é uma linguagem imperativa e é caracterizada por: [tipos de dados](#tipos-de-dados); [manipulação de nomes](#manipulação-de-nomes); [convenções lexicais](#convenções-lexicais); [estrutura/sintaxe](#estrutura/sintaxe); [especificação das funções](#especificação-das-funções); [semântica das instruções](#semântica-das-instruções); [semântica das expressões](#semântica-das-expressões).
+FIR é uma linguagem imperativa e é caracterizada por: [tipos de dados](#tipos-de-dados); [manipulação de nomes](#manipulação-de-nomes); [convenções lexicais](#convenções-lexicais); [estrutura/sintaxe](#estrutura/sintaxe-=-gramática); [especificação das funções](#especificação-das-funções); [semântica das instruções](#semântica-das-instruções); [semântica das expressões](#semântica-das-expressões).
 
 No final apresentam-se alguns [exemplos](#exemplos)
 
@@ -39,14 +37,11 @@ Existem 4 tipos de dados, com alinhamento em memória sempre de 32 bits
 - **reais** - vírgula flutuante, 8 bytes
 - **cadeiras de caracteres** - vetores de caracteres terminados por ASCII NULL (0x00, '\0' em C)
 - **ponteiros** - endereços, 4 bytes
----
 ### Manipulação de Nomes
 Correspondem a variáveis e funções
 
 O espaço de nomes global é único (um nome não pode ser reutilizado, mesmo que em contexto diferente). Os identificadores são visíveis desde a declaração até ao fim da função (ou do ficheiro, se forem globais). Redeclarações locais encobrem as globais. Não é possível importar ou definir símbolos globais nos contextos das funções.
 
-
----
 ### Convenções Lexicais
 #### **Caracteres brancos**
 São considerados separadores e não representam nenhum elemento lexical: mudança de linha ASCII LF (0x0A, '\n' em C), recuo do carreto ASCII CR (0x0D, '\r' em C), espaço ASCII SP (0x20) e tabulação horizontal ASCII HT (0x09, '\t' em C).
@@ -76,9 +71,93 @@ Iniciados sempre por uma letra
 
 Podem ser seguidos por um 0 (zero), mais letras, dígitos ou `_` (sublinhado)
 
-### Estrutura/Sintaxe
+#### **Literais**
+- *inteiros*: um literal inteiro é um número não negativo. Uma constante inteira pode, contudo, ser negativa: números negativos são construídos pela aplicação do operador de negação aritmética unária (-) a um literal positivo
+  - Literais inteiros **decimais** são constituídos por sequências de 1 (um) ou mais dígitos de 0 a 9, em que o primeiro dígito não é 0 (zero), excepto no caso do número 0 (zero). Neste caso, é composto apenas pelo dígito 0 (zero) (em qualquer base).
+  - Literais inteiros em **octal** começam sempre pelo dígito 0 (zero), sendo seguido de um ou mais dígitos de 0 a 7 (note-se que 09 é um literal octal inválido). Exemplo: 007. Se não for possível representar o literal inteiro na máquina, devido a um overflow, deverá ser gerado um erro lexical.
+- *reais em vírgula flutuante*: Os literais reais positivos são expressos tal como em C (apenas é suportada a base 10). Não existem literais negativos (números negativos resultam da aplicação da operação de negação unária). Um literal sem . (ponto decimal) nem parte exponencial é do tipo inteiro. Se não for possível representar o literal real na máquina, devido a um overflow, deverá ser gerado um erro lexical.
+- *cadeias de caracteres*:
+
+  As cadeias de caracteres são delimitadas por plicas (') e podem conter quaisquer caracteres, excepto ASCII NULL (0x00 ou \0 em C). Nas cadeias, os delimitadores de comentários não têm significado especial. Se for escrito um literal que contenha o carácter nulo (~0 em FIR), então a cadeia termina nessa posição. Exemplo: 'ab~0xy' tem o mesmo significado que 'ab'.
+
+  É possível designar caracteres por sequências especiais (iniciadas por ~), especialmente úteis quando não existe representação gráfica directa. As sequências especiais correspondem aos caracteres ASCII LF, CR e HT (\n, \r e \t, respectivamente, em C e ~n, ~r, ~t, respectivamente, em FIR), plica (~'), til (~~), ou a quaisquer outros especificados através de 1 ou 2 digitos hexadecimais (e.g. ~0a ou apenas ~a se o carácter seguinte não representar um dígito hexadecimal).
+
+  Elementos lexicais distintos que representem duas ou mais cadeias consecutivas são representadas na linguagem como uma única cadeia que resulta da concatenação.
+
+  Exemplos:
+
+  'ab' 'cd' é o mesmo que 'abcd'.
+  'ab' (* comentário com 'cadeia de caracteres falsa' *) 'cd' é o mesmo que 'abcd'.
+
+- *ponteiros*: o único literal admissível para ponteiros é indicado pela palavra reservada `null`, indicando o ponteiro nulo
+
+### Estrutura/Sintaxe = Gramática
+Ver [Gramática](https://web.tecnico.ulisboa.pt/~david.matos/w/pt/index.php/Compiladores/Projecto_de_Compiladores/Projecto_2020-2021/Manual_de_Refer%C3%AAncia_da_Linguagem_FIR#Gram.C3.A1tica)
+
+#### **Declaração de Variáveis**
+- Inteiro: `int i`
+- Real: `float f`
+- Cadeia de caracteres: `string s`
+- Ponteiro para inteiro: `<int> p1` (equivalente a int* em C)
+- Ponteiro para real: `<float> p2` (equivalente a double* em C)
+- Ponteiro para cadeia de caracteres: `<string> p3` (equivalente a char** em C)
+- Ponteiro para ponteiro para inteiro: `<<int>> p4` (equivalente a int** em C)
+
+#### **Símbolos Globais**
+O símbolo `*` permite declarar um identificador como público, tornando-o acessível a partir de outros módulos.
+
+O símbolo `?` (opcional para funções) permite declarar num módulo entidades definidas em outros módulos.
+
 ### Especificação das Funções
+As funções são sempre designadas por identificadores constantes precedidos do tipo de dados devolvido pela função. Se a função não devolver um valor, é declarada como tendo tipo ***void*** para o indicar.
+
+As funções que recebam argumentos devem indicá-los no cabeçalho. Funções sem argumentos definem um cabeçalho vazio. Não é possível aplicar os qualificadores de exportação/importação `*` ou `?` às declarações dos argumentos de uma função. Não é possível especificar valores iniciais (valores por omissão) para argumentos de funções.
+
+Função sem corpo: tipificar um identificador exterior ou para pré-declarar uma função
+
+#### **Invocação**
+A função chamadora coloca os argumentos na pilha e é responsável pela sua remoção, após o retorno da chamada. Assim, os parâmetros actuais devem ser colocados na pilha pela ordem inversa da sua declaração (i.e., são avaliados da direita para a esquerda antes da invocação da função e o resultado passado por cópia/valor). O endereço de retorno é colocado no topo da pilha pela chamada à função.
+
+#### **Corpo**
+- **Prólogo** (indicado com `@`): sempre executado no início e as variáveis declaradas aqui podem ser usadas nas outras partes. As variáveis declaradas fora do prólogo são visíveis apenas no bloco em que a declaração ocorre
+- **Bloco Principal**
+- **Epílogo** (indicado com `>>`): é executado no fim da função, mesmo na presença de instrução de retorno 
+
+> Não é possível aplicar os qualificadores de exportação `*` ou de importação `?` em declarações dentro do corpo de uma função
+
+Se existir um valor declarado por omissão para o retorno da função (indicado pela notação `->` seguindo a assinatura da função), então deve ser utilizado se não for especificado outro. A especificação do valor de retorno por omissão é obrigatoriamente um literal do tipo indicado. Uma função cujo retorno seja inteiro ou ponteiro retorna `0` (zero) ou `null` por omissão. Nos outros casos, é indeterminado
+
+> Uma instrução return, em qualquer parte que não o epílogo, causa a interrupção imediata dessa parte da função e a execução da epílogo (se existir). A instrução return, no epílogo, causa a interrupção da própria função, assim como o retorno do seu valor de retorno actual ao chamador.
+
+#### **Função Principal e Execução de Programas**
+Um programa inicia-se com a invocação da função fir (sem argumentos). Os argumentos com que o programa foi chamado podem ser obtidos através das seguintes funções:
+
+- int `argc()` (devolve o número de argumentos);
+- string `argv(int n)` (devolve o n-ésimo argumento como uma cadeia de caracteres) (n>0); e
+- string `envp(int n)` (devolve a n-ésima variável de ambiente como uma cadeia de caracteres)
+
+Valor de retorno da função principal:
+- 0 (zero): execução sem erros;
+- 1 (um): argumentos inválidos (em número ou valor);
+- 2 (dois): erro de execução.
+- \>128 (superior a 128): significa que terminou com um sinal 
+
+
 ### Semântica das Instruções
+
+#### **Blocos**
+Cada bloco tem uma zona de declaração de variáveis locais e uma zona de instruções (ambas facultativas). Não é possível declarar ou definir funções dentro dos blocos.
+
+As variáveis só são visíveis dentro desse bloco, exceto aquelas definidas no **prólogo**. Podem ser passadas como argumentos para outras funções. 
+
+#### **Instrução _leave_**
+Termina o ciclo mais interior (como a instrução `break` em C). Só pode existir dentro de um ciclo e não pode ser usada na parte **finally**. Se for usada com um literal inteiro, reinicia o ciclo correspondente à ordem indicada pelo inteiro (1 é o mais interno, 2 é o seguinte, etc).
+
+#### **Instruções de Impressão**
+Usa-se as palavras `write` e `writeln`
+
+Quando existe mais de uma expressão, as várias expressões são apresentadas sem separação. Valores numéricos (inteiros ou reais) são impressos em decimal. As cadeias de caracteres são impressas na codificação nativa. Ponteiros não podem ser impressos.
+
 ### Semântica das Expressões
 
 
