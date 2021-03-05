@@ -23,6 +23,7 @@
   - [Como compilar](#como-compilar)
   - [Entrega Inicial](#entrega-inicial---dia-20210322-1700)
   - [Commitar com CVS](#commitar-com-cvs)
+  - [ToDo](#todo)
   - [Hints](#hints)
 
 ---
@@ -207,7 +208,7 @@ int *factorial(int n) {
 }
 ```
 
-Em fir:
+Utilização desta função em fir:
 ```
 !! external builtin functions
 int ?argc()
@@ -229,6 +230,8 @@ int *fir() -> 0
 ```
 
 Mais [testes](https://web.tecnico.ulisboa.pt/~david.matos/w/pt/index.php/Compiladores/Projecto_de_Compiladores/Testes_Autom%C3%A1ticos_2020-2021)
+
+Aqui está o acesso aos testes diários
 
 > Tentar colocar sempre o código no CVS (a compilar!) porque todos os dias são realizados testes diários!
 
@@ -258,6 +261,13 @@ Para commitar com o CVS:
 3. Commitar a partir dessa diretoria.
 
 ---
+## ToDo
+- compilar o simple e olhar para os nodes
+- olhar para a pauta para ver o que é suposto ter feito
+- [fases de desenvolvimento](https://web.tecnico.ulisboa.pt/~david.matos/w/pt/index.php/Compiladores/Projecto_de_Compiladores/Fases_Desenvolvimento) -> uma fase por entrega?
+- olhar para os [compiladores](https://web.tecnico.ulisboa.pt/~david.matos/w/pt/index.php/Compiladores/Projecto_de_Compiladores/Compiladores_Exemplo) ***Simple*** e ***Og***
+---
+
 ## Hints
 - CDK16 da wiki não está 100% correta
 - não mexer nos if-then-else que estão no CVS porque "não há outra forma de fazer"
