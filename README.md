@@ -20,7 +20,8 @@
     - [Especificação das Funções](#especificação-das-funções)
     - [Semântica das Instruções](#semântica-das-instruções)
     - [Semântica das Expressões](#semântica-das-expressões)
-  - [Entrega Inicial - dia 2021/03/22 17:00](#entrega-inicial---dia-20210322-1700)
+  - [Como compilar](#como-compilar)
+  - [Entrega Inicial](#entrega-inicial---dia-20210322-1700)
   - [Commitar com CVS](#commitar-com-cvs)
   - [Hints](#hints)
 
@@ -159,13 +160,95 @@ Usa-se as palavras `write` e `writeln`
 Quando existe mais de uma expressão, as várias expressões são apresentadas sem separação. Valores numéricos (inteiros ou reais) são impressos em decimal. As cadeias de caracteres são impressas na codificação nativa. Ponteiros não podem ser impressos.
 
 ### Semântica das Expressões
+Ver [Tabela](https://web.tecnico.ulisboa.pt/~david.matos/w/pt/index.php/Compiladores/Projecto_de_Compiladores/Projecto_2020-2021/Manual_de_Refer%C3%AAncia_da_Linguagem_FIR#Express.C3.B5es_primitivas)
 
+#### **Expressões primitivas**
+- identificadores: 
+  Um identificador é uma expressão se tiver sido declarado. Um identificador pode denotar uma variável.
 
+  Um identificador é o caso mais simples de um left-value, ou seja, uma entidade que pode ser utilizada no lado esquerdo (left) de uma atribuição.
+
+- leitura: 
+  A operação de leitura de um valor inteiro ou real pode ser efectuado pela expressão indicada pelo símbolo @, que devolve o valor lido, de acordo com o tipo esperado (inteiro ou real). Caso se use como argumento dos operadores de impressão ou noutras situações que permitam vários tipos (write ou writeln), deve ser lido um inteiro.
+
+  Exemplos: `a = @` (leitura para a), `f(@)` (leitura para argumento de função), `write @` (leitura e impressão).
+
+#### **Expressões resultantes de avaliação de operadores**
+- indexação de ponteiros:
+  A indexação de ponteiros devolve o valor de uma posição de memória indicada por um ponteiro. Consiste de uma expressão ponteiro seguida do índice entre parênteses rectos. O resultado de uma indexação de ponteiros é um left-value.
+
+  Exemplo (acesso à posição 0 da zona de memória indicada por p): `p[0]`
+
+- identidade e simétrico:
+  Os operadores identidade `+` e simétrico `-` aplicam-se a inteiros e reais. Têm o mesmo significado que em C
+
+- reserva de memória:
+  A expressão reserva de memória devolve o ponteiro que aponta para a zona de memória, na pilha da função actual, contendo espaço suficiente para o número de objectos indicados pelo seu argumento inteiro.
+
+  Exemplo (reserva vector com 5 reais, apontados por p): `<float>p = [5]`
+
+- expressão de indicação de posição:
+  O operador sufixo `?` aplica-se a left-values, retornando o endereço (com o tipo ponteiro) correspondente.
+
+  Exemplo (indica o endereço de a): `a?`
+
+- expressão de dimensão:
+  O operador `sizeof` aplica-se a expressões, retornando a dimensão correspondente em bytes.
+
+  Exemplo: `sizeof(a)` (dimensão de a).
+
+### Exemplos
+Definição do programa fatorial
+
+Em C:
+```C
+int *factorial(int n) {
+  if n > 1 then factorial = n * factorial(n-1); else factorial = 1;
+}
+```
+
+Em fir:
+```
+!! external builtin functions
+int ?argc()
+string ?argv(int n)
+int ?atoi(string s)
+
+!! external user functions
+int ?factorial(int n)
+
+!! the main function
+int *fir() -> 0
+@ { int f = 1; }
+{
+  writeln 'Teste para a função factorial';
+  if argc() == 2 then f = atoi(argv(1));
+  writeln f, '! = ', factorial(f);
+}
+>> { (* nothing to do, really *) }
+```
+
+Mais [testes](https://web.tecnico.ulisboa.pt/~david.matos/w/pt/index.php/Compiladores/Projecto_de_Compiladores/Testes_Autom%C3%A1ticos_2020-2021)
+
+> Tentar colocar sempre o código no CVS (a compilar!) porque todos os dias são realizados testes diários!
+
+---
+## Como compilar:
+```
+fir --target asm factorial.fir
+fir --target asm main.fir
+yasm -felf32 factorial.asm
+yasm -felf32 main.asm
+ld -melf_i386 -o main factorial.o main.o -lrts
+```
+
+---
 ## Entrega Inicial - dia 2021/03/22 17:00
 Nesta fase, além da estrutura básica do compilador, todas as classes dos nós da linguagem, assim como os esqueletos dos "visitors" (xml_writer, postfix_writer, etc.) devem estar implementados. Não é ainda necessário ter implementado nenhum código de análise lexical, sintáctica ou semântica.
 
 > ver pauta de avaliação, ainda não disponível (?)
 
+---
 ## Commitar com CVS
 A informação do CVS foi retirada deste repositório para evitar conflitos.
 
@@ -174,7 +257,9 @@ Para commitar com o CVS:
 2. Copiar o conteúdo deste repositório para cima dessa diretoria, mergindo as subpastas;
 3. Commitar a partir dessa diretoria.
 
+---
 ## Hints
 - CDK16 da wiki não está 100% correta
 - não mexer nos if-then-else que estão no CVS porque "não há outra forma de fazer"
 - usar os últimos 4 ficheiros para instalar a máquina virtual (básico para correr o compilador, mas não necessário)
+- ver vídeo da aula #2
