@@ -361,7 +361,15 @@ Para cada nó:
 - ficheiro .h
   - ifndefs
   - decidir os objetos que tem
-  - 
+- fir_parser.y
+  - token
+  - stmt
+- xml_writer.cpp
+- type_checker.cpp
+- postfix_
+- type_checker.cpp
+- postfix_writer.cpp
+
 
 
 
