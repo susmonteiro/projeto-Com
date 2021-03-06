@@ -37,9 +37,12 @@
   - [Commitar com CVS](#commitar-com-cvs)
   - [ToDo](#todo)
   - [- olhar para os compiladores ***Simple*** e ***Og***](#--olhar-para-os-compiladores-simple-e-og)
+<<<<<<< HEAD
   - [Nodes](#nodes)
     - [Nodes do CKS:](#nodes-do-cks)
     - [Nodes ToDo](#nodes-todo)
+=======
+>>>>>>> 77e90c3ac72c307b0af07eb3086717cb7e876019
   - [Hints](#hints)
 
 ---
@@ -274,7 +277,8 @@ A informação do CVS foi retirada deste repositório para evitar conflitos.
 Para commitar com o CVS:
 1. Fazer novamente checkout do repositório para outra diretoria;
 2. Copiar o conteúdo deste repositório para cima dessa diretoria, mergindo as subpastas;
-3. Commitar a partir dessa diretoria.
+3. Remover README.md;
+4. Commitar a partir dessa diretoria.
 
 ---
 ## ToDo
