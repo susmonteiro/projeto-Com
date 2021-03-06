@@ -4,7 +4,7 @@
 ---
 ## Indice
 - [Projeto de Compiladores](#projeto-de-compiladores)
-    - [Ver **Enunciado** e [**Avaliação**](https://web.tecnico.ulisboa.pt/~david.matos/w/pt/index.php/Compiladores/Projecto_de_Compiladores)](#ver-enunciado-e-avaliação)
+    - [Ver Enunciado e Avaliação](#ver-enunciado-e-avaliação)
   - [Indice](#indice)
   - [Linguagem FIR](#linguagem-fir)
     - [Tipos de Dados](#tipos-de-dados)
@@ -40,14 +40,6 @@
   - [- olhar para os compiladores ***Simple*** e ***Og***](#--olhar-para-os-compiladores-simple-e-og)
   - [Nodes](#nodes)
     - [Nodes do CKS:](#nodes-do-cks)
-    - [Nodes ToDo](#nodes-todo)
-  - [Hints](#hints)
-<<<<<<< HEAD
-  - [Nodes](#nodes)
-    - [Nodes do CKS:](#nodes-do-cks)
-    - [Nodes ToDo](#nodes-todo)
-=======
->>>>>>> 77e90c3ac72c307b0af07eb3086717cb7e876019
   - [Hints](#hints)
 
 ---
@@ -340,14 +332,10 @@ Para cada nó:
 - fir_parser.y
   - token
   - stmt
+- fir_scanner.l
 - xml_writer.cpp
 - type_checker.cpp
-- postfix_
-- type_checker.cpp
 - postfix_writer.cpp
-
-
-
 
 ---
 ## Hints
