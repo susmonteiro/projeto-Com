@@ -13,7 +13,7 @@
   - [Semântica das Expressões](#semântica-das-expressões)
   - [Exemplos](#exemplos)
 - [Como compilar:](#como-compilar)
-- [Entrega Inicial - dia 2021/03/22 17:00](#entrega-inicial---dia-20210322-1700)
+- [Entrega Inicial](#entrega-inicial---dia-20210322-1700)
 - [Commitar com CVS](#commitar-com-cvs)
 - [ToDo](#todo)
 - [Nodes](#nodes)
