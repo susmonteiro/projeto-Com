@@ -270,3 +270,21 @@ void fir::postfix_writer::do_if_else_node(fir::if_else_node * const node, int lv
   node->elseblock()->accept(this, lvl + 2);
   _pf.LABEL(mklbl(lbl1 = lbl2));
 }
+
+//---------------------------------------------------------------------------
+
+void fir::postfix_writer::do_sizeof_node(fir::sizeof_node * const node, int lvl) {
+  // ASSERT_SAFE_EXPRESSIONS;
+  // node->argument()->accept(this, lvl); // determine the value to print
+  // if (node->argument()->is_typed(cdk::TYPE_INT)) {
+  //   _pf.CALL("printi");
+  //   _pf.TRASH(4); // delete the printed value
+  // } else if (node->argument()->is_typed(cdk::TYPE_STRING)) {
+  //   _pf.CALL("prints");
+  //   _pf.TRASH(4); // delete the printed value's address
+  // } else {
+  //   std::cerr << "ERROR: CANNOT HAPPEN!" << std::endl;
+  //   exit(1);
+  // }
+  // _pf.CALL("println"); // print a newline
+}

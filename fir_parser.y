@@ -34,7 +34,7 @@
 
 %token <i> tINTEGER
 %token <s> tIDENTIFIER tSTRING
-%token tWHILE tIF tPRINT tREAD tBEGIN tEND
+%token tWHILE tIF tPRINT tSIZEOF tREAD tBEGIN tEND
 
 %nonassoc tIFX
 %nonassoc tELSE
@@ -63,7 +63,8 @@ list : stmt	     { $$ = new cdk::sequence_node(LINE, $1); }
 	   ;
 
 stmt : expr ';'                         { $$ = new fir::evaluation_node(LINE, $1); }
- 	   | tPRINT expr ';'                  { $$ = new fir::print_node(LINE, $2); }
+     | tPRINT expr ';'                  { $$ = new fir::print_node(LINE, $2); }
+     | tSIZEOF '(' expr ')' ';'         { $$ = new fir::sizeof_node(LINE, $3); }
      | tREAD lval ';'                   { $$ = new fir::read_node(LINE, $2); }
      | tWHILE '(' expr ')' stmt         { $$ = new fir::while_node(LINE, $3, $5); }
      | tIF '(' expr ')' stmt %prec tIFX { $$ = new fir::if_node(LINE, $3, $5); }
@@ -71,9 +72,9 @@ stmt : expr ';'                         { $$ = new fir::evaluation_node(LINE, $1
      | '{' list '}'                     { $$ = $2; }
      ;
 
-expr : tINTEGER                { $$ = new cdk::integer_node(LINE, $1); }
-	   | tSTRING                 { $$ = new cdk::string_node(LINE, $1); }
-     | '-' expr %prec tUNARY   { $$ = new cdk::neg_node(LINE, $2); }
+expr : tINTEGER                   { $$ = new cdk::integer_node(LINE, $1); }
+     | tSTRING                    { $$ = new cdk::string_node(LINE, $1); }
+     | '-' expr %prec tUNARY      { $$ = new cdk::neg_node(LINE, $2); }
      | expr '+' expr	         { $$ = new cdk::add_node(LINE, $1, $3); }
      | expr '-' expr	         { $$ = new cdk::sub_node(LINE, $1, $3); }
      | expr '*' expr	         { $$ = new cdk::mul_node(LINE, $1, $3); }
@@ -82,12 +83,12 @@ expr : tINTEGER                { $$ = new cdk::integer_node(LINE, $1); }
      | expr '<' expr	         { $$ = new cdk::lt_node(LINE, $1, $3); }
      | expr '>' expr	         { $$ = new cdk::gt_node(LINE, $1, $3); }
      | expr tGE expr	         { $$ = new cdk::ge_node(LINE, $1, $3); }
-     | expr tLE expr           { $$ = new cdk::le_node(LINE, $1, $3); }
+     | expr tLE expr              { $$ = new cdk::le_node(LINE, $1, $3); }
      | expr tNE expr	         { $$ = new cdk::ne_node(LINE, $1, $3); }
      | expr tEQ expr	         { $$ = new cdk::eq_node(LINE, $1, $3); }
-     | '(' expr ')'            { $$ = $2; }
-     | lval                    { $$ = new cdk::rvalue_node(LINE, $1); }  //FIXME
-     | lval '=' expr           { $$ = new cdk::assignment_node(LINE, $1, $3); }
+     | '(' expr ')'               { $$ = $2; }
+     | lval                       { $$ = new cdk::rvalue_node(LINE, $1); }  //FIXME
+     | lval '=' expr              { $$ = new cdk::assignment_node(LINE, $1, $3); }
      ;
 
 lval : tIDENTIFIER             { $$ = new cdk::variable_node(LINE, $1); }

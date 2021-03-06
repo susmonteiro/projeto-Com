@@ -190,3 +190,9 @@ void fir::type_checker::do_if_node(fir::if_node *const node, int lvl) {
 void fir::type_checker::do_if_else_node(fir::if_else_node *const node, int lvl) {
   node->condition()->accept(this, lvl + 4);
 }
+
+//---------------------------------------------------------------------------
+
+void fir::type_checker::do_sizeof_node(fir::sizeof_node *const node, int lvl) {
+  // node->argument()->accept(this, lvl + 2);
+}
