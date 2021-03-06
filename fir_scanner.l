@@ -28,6 +28,7 @@
 "sizeof"               return tSIZEOF; 
 "leave"                return tLEAVE; 
 "restart"              return tRESTART; 
+"return"               return tRETURN; 
 "read"                 return tREAD; 
 "begin"                return tBEGIN; 
 "end"                  return tEND; 

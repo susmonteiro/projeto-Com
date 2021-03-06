@@ -34,7 +34,7 @@
 
 %token <i> tINTEGER
 %token <s> tIDENTIFIER tSTRING
-%token tWHILE tIF tPRINT tSIZEOF tLEAVE tRESTART tREAD tBEGIN tEND
+%token tWHILE tIF tPRINT tSIZEOF tLEAVE tRESTART tRETURN tREAD tBEGIN tEND
 
 %nonassoc tIFX
 %nonassoc tELSE
@@ -69,6 +69,7 @@ stmt : expr ';'                         { $$ = new fir::evaluation_node(LINE, $1
      | tLEAVE tINTEGER ';'              { $$ = new fir::leave_node(LINE, $2); }
      | tRESTART ';'                     { $$ = new fir::restart_node(LINE); }
      | tRESTART tINTEGER ';'            { $$ = new fir::restart_node(LINE, $2); }
+     | tRETURN ';'                      { $$ = new fir::return_node(LINE); }
      | tREAD lval ';'                   { $$ = new fir::read_node(LINE, $2); }
      | tWHILE '(' expr ')' stmt         { $$ = new fir::while_node(LINE, $3, $5); }
      | tIF '(' expr ')' stmt %prec tIFX { $$ = new fir::if_node(LINE, $3, $5); }
