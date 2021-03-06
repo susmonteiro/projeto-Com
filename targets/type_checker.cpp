@@ -196,3 +196,13 @@ void fir::type_checker::do_if_else_node(fir::if_else_node *const node, int lvl) 
 void fir::type_checker::do_sizeof_node(fir::sizeof_node *const node, int lvl) {
   // node->argument()->accept(this, lvl + 2);
 }
+
+//---------------------------------------------------------------------------
+
+void fir::type_checker::do_leave_node(fir::leave_node *const node, int lvl) {
+  // node->argument()->accept(this, lvl + 2);
+}
+
+void fir::type_checker::do_restart_node(fir::restart_node *const node, int lvl) {
+  // node->argument()->accept(this, lvl + 2);
+}

@@ -34,7 +34,7 @@
 
 %token <i> tINTEGER
 %token <s> tIDENTIFIER tSTRING
-%token tWHILE tIF tPRINT tSIZEOF tREAD tBEGIN tEND
+%token tWHILE tIF tPRINT tSIZEOF tLEAVE tRESTART tREAD tBEGIN tEND
 
 %nonassoc tIFX
 %nonassoc tELSE
@@ -65,6 +65,8 @@ list : stmt	     { $$ = new cdk::sequence_node(LINE, $1); }
 stmt : expr ';'                         { $$ = new fir::evaluation_node(LINE, $1); }
      | tPRINT expr ';'                  { $$ = new fir::print_node(LINE, $2); }
      | tSIZEOF '(' expr ')' ';'         { $$ = new fir::sizeof_node(LINE, $3); }
+     | tLEAVE expr ';'                  { $$ = new fir::leave_node(LINE, $2); }
+     | tRESTART expr ';'                { $$ = new fir::restart_node(LINE, $2); }
      | tREAD lval ';'                   { $$ = new fir::read_node(LINE, $2); }
      | tWHILE '(' expr ')' stmt         { $$ = new fir::while_node(LINE, $3, $5); }
      | tIF '(' expr ')' stmt %prec tIFX { $$ = new fir::if_node(LINE, $3, $5); }

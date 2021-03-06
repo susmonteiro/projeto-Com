@@ -26,6 +26,8 @@
 "else"                 return tELSE; 
 "print"                return tPRINT; 
 "sizeof"               return tSIZEOF; 
+"leave"                return tLEAVE; 
+"restart"              return tRESTART; 
 "read"                 return tREAD; 
 "begin"                return tBEGIN; 
 "end"                  return tEND; 
