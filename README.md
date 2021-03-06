@@ -10,28 +10,10 @@
     - [Tipos de Dados](#tipos-de-dados)
     - [Manipulação de Nomes](#manipulação-de-nomes)
     - [Convenções Lexicais](#convenções-lexicais)
-      - [**Caracteres brancos**](#caracteres-brancos)
-      - [**Comentários**](#comentários)
-      - [**Palavras chave**](#palavras-chave)
-      - [**Tipos**](#tipos)
-      - [**Delimitadores e terminadores**](#delimitadores-e-terminadores)
-      - [**Identificadores (nomes)**](#identificadores-nomes)
-      - [**Literais**](#literais)
     - [Estrutura/Sintaxe = Gramática](#estruturasintaxe--gramática)
-      - [**Declaração de Variáveis**](#declaração-de-variáveis)
-      - [**Símbolos Globais**](#símbolos-globais)
     - [Especificação das Funções](#especificação-das-funções)
-      - [**Invocação**](#invocação)
-      - [**Corpo**](#corpo)
-      - [**Função Principal e Execução de Programas**](#função-principal-e-execução-de-programas)
     - [Semântica das Instruções](#semântica-das-instruções)
-      - [**Blocos**](#blocos)
-      - [**Instrução _leave_**](#instrução-leave)
-      - [**Instrução _restart_**](#instrução-restart)
-      - [**Instruções de Impressão**](#instruções-de-impressão)
     - [Semântica das Expressões](#semântica-das-expressões)
-      - [**Expressões primitivas**](#expressões-primitivas)
-      - [**Expressões resultantes de avaliação de operadores**](#expressões-resultantes-de-avaliação-de-operadores)
     - [Exemplos](#exemplos)
   - [Como compilar:](#como-compilar)
   - [Entrega Inicial - dia 2021/03/22 17:00](#entrega-inicial---dia-20210322-1700)
@@ -39,7 +21,7 @@
   - [ToDo](#todo)
   - [- olhar para os compiladores ***Simple*** e ***Og***](#--olhar-para-os-compiladores-simple-e-og)
   - [Nodes](#nodes)
-    - [Nodes do CKS:](#nodes-do-cks)
+    - [Nodes do CDK](#nodes-do-cdk)
   - [Hints](#hints)
 
 ---
@@ -289,7 +271,7 @@ Para commitar com o CVS:
 ---
 
 ## Nodes
-### Nodes do CKS:
+### Nodes do CDK:
 
 ```
 basic_node
