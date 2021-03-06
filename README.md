@@ -4,26 +4,42 @@
 ---
 ## Indice
 - [Projeto de Compiladores](#projeto-de-compiladores)
-    - [Ver Enunciado e Avaliação](#ver-enunciado-e-avaliação)
+    - [Ver **Enunciado** e [**Avaliação**](https://web.tecnico.ulisboa.pt/~david.matos/w/pt/index.php/Compiladores/Projecto_de_Compiladores)](#ver-enunciado-e-avaliação)
   - [Indice](#indice)
   - [Linguagem FIR](#linguagem-fir)
     - [Tipos de Dados](#tipos-de-dados)
     - [Manipulação de Nomes](#manipulação-de-nomes)
     - [Convenções Lexicais](#convenções-lexicais)
-      - [Caracteres brancos](#caracteres-brancos)
-      - [Comentários](#comentários)
-      - [Palavras chave](#palavras-chave)
-      - [Tipos](#tipos)
-      - [Delimitadores e terminadores](#delimitadores-e-terminadores)
-      - [Identificadores (nomes)](#identificadores-nomes)
-    - [Estrutura/Sintaxe](##estrutura/sintaxe-=-gramática)
+      - [**Caracteres brancos**](#caracteres-brancos)
+      - [**Comentários**](#comentários)
+      - [**Palavras chave**](#palavras-chave)
+      - [**Tipos**](#tipos)
+      - [**Delimitadores e terminadores**](#delimitadores-e-terminadores)
+      - [**Identificadores (nomes)**](#identificadores-nomes)
+      - [**Literais**](#literais)
+    - [Estrutura/Sintaxe = Gramática](#estruturasintaxe--gramática)
+      - [**Declaração de Variáveis**](#declaração-de-variáveis)
+      - [**Símbolos Globais**](#símbolos-globais)
     - [Especificação das Funções](#especificação-das-funções)
+      - [**Invocação**](#invocação)
+      - [**Corpo**](#corpo)
+      - [**Função Principal e Execução de Programas**](#função-principal-e-execução-de-programas)
     - [Semântica das Instruções](#semântica-das-instruções)
+      - [**Blocos**](#blocos)
+      - [**Instrução _leave_**](#instrução-leave)
+      - [**Instruções de Impressão**](#instruções-de-impressão)
     - [Semântica das Expressões](#semântica-das-expressões)
-  - [Como compilar](#como-compilar)
-  - [Entrega Inicial](#entrega-inicial---dia-20210322-1700)
+      - [**Expressões primitivas**](#expressões-primitivas)
+      - [**Expressões resultantes de avaliação de operadores**](#expressões-resultantes-de-avaliação-de-operadores)
+    - [Exemplos](#exemplos)
+  - [Como compilar:](#como-compilar)
+  - [Entrega Inicial - dia 2021/03/22 17:00](#entrega-inicial---dia-20210322-1700)
   - [Commitar com CVS](#commitar-com-cvs)
   - [ToDo](#todo)
+  - [- olhar para os compiladores ***Simple*** e ***Og***](#--olhar-para-os-compiladores-simple-e-og)
+  - [Nodes](#nodes)
+    - [Nodes do CKS:](#nodes-do-cks)
+    - [Nodes ToDo](#nodes-todo)
   - [Hints](#hints)
 
 ---
@@ -268,6 +284,76 @@ Para commitar com o CVS:
 - olhar para os [compiladores](https://web.tecnico.ulisboa.pt/~david.matos/w/pt/index.php/Compiladores/Projecto_de_Compiladores/Compiladores_Exemplo) ***Simple*** e ***Og***
 ---
 
+## Nodes
+### Nodes do CKS:
+
+```
+basic_node
+├── data_node
+├── nil_node
+├── sequence_node
+└── typed_node
+    ├── expression_node
+    │   ├── assignment_node
+    │   ├── binary_operation_node
+    │   │   ├── add_node
+    │   │   ├── and_node
+    │   │   ├── div_node
+    │   │   ├── eq_node
+    │   │   ├── ge_node
+    │   │   ├── gt_node
+    │   │   ├── le_node
+    │   │   ├── lt_node
+    │   │   ├── mod_node
+    │   │   ├── mul_node
+    │   │   ├── ne_node
+    │   │   ├── or_node
+    │   │   └── sub_node
+    │   ├── literal_node
+    │   │   ├── double_node
+    │   │   ├── integer_node
+    │   │   └── string_node
+    │   ├── rvalue_node
+    │   └── unary_operation_node
+    │       ├── neg_node
+    │       └── not_node
+    └── lvalue_node
+        └── variable_node
+```
+
+### Nodes ToDo
+
+- [ ] address_of_node.h
+- [ ] block_node.h
+- [ ] break_node.h
+- [ ] continue_node.h
+- [ ] function_call_node.h
+- [ ] function_declaration_node.h
+- [ ] function_definition_node.h
+- [ ] identity_node.h
+- [ ] index_node.h
+- [ ] input_node.h
+- [ ] left_index_node.h
+- [ ] nullptr_node.h
+- [ ] return_node.h
+- [ ] sizeof_node.h
+- [ ] stack_alloc_node.h
+- [ ] tuple_declaration_node.h
+- [ ] tuple_index_node.h
+- [ ] tuple_node.h
+- [ ] variable_declaration_node.h
+- [ ] write_node.h
+- [ ] writeln_node.h
+
+Para cada nó:
+- ficheiro .h
+  - ifndefs
+  - decidir os objetos que tem
+  - 
+
+
+
+---
 ## Hints
 - CDK16 da wiki não está 100% correta
 - não mexer nos if-then-else que estão no CVS porque "não há outra forma de fazer"
