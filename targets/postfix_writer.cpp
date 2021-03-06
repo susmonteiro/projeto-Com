@@ -307,7 +307,7 @@ void fir::postfix_writer::do_leave_node(fir::leave_node * const node, int lvl) {
   // _pf.CALL("println"); // print a newline
 }
 
-void fir::postfix_writer::do_restart_node(fir::sizeof_node * const node, int lvl) {
+void fir::postfix_writer::do_restart_node(fir::restart_node * const node, int lvl) {
   // ASSERT_SAFE_EXPRESSIONS;
   // node->argument()->accept(this, lvl); // determine the value to print
   // if (node->argument()->is_typed(cdk::TYPE_INT)) {
