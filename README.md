@@ -27,6 +27,7 @@
     - [Semântica das Instruções](#semântica-das-instruções)
       - [**Blocos**](#blocos)
       - [**Instrução _leave_**](#instrução-leave)
+      - [**Instrução _restart_**](#instrução-restart)
       - [**Instruções de Impressão**](#instruções-de-impressão)
     - [Semântica das Expressões](#semântica-das-expressões)
       - [**Expressões primitivas**](#expressões-primitivas)
@@ -37,6 +38,10 @@
   - [Commitar com CVS](#commitar-com-cvs)
   - [ToDo](#todo)
   - [- olhar para os compiladores ***Simple*** e ***Og***](#--olhar-para-os-compiladores-simple-e-og)
+  - [Nodes](#nodes)
+    - [Nodes do CKS:](#nodes-do-cks)
+    - [Nodes ToDo](#nodes-todo)
+  - [Hints](#hints)
 <<<<<<< HEAD
   - [Nodes](#nodes)
     - [Nodes do CKS:](#nodes-do-cks)
@@ -99,9 +104,9 @@ Podem ser seguidos por um 0 (zero), mais letras, dígitos ou `_` (sublinhado)
 - *reais em vírgula flutuante*: Os literais reais positivos são expressos tal como em C (apenas é suportada a base 10). Não existem literais negativos (números negativos resultam da aplicação da operação de negação unária). Um literal sem . (ponto decimal) nem parte exponencial é do tipo inteiro. Se não for possível representar o literal real na máquina, devido a um overflow, deverá ser gerado um erro lexical.
 - *cadeias de caracteres*:
 
-  As cadeias de caracteres são delimitadas por plicas (') e podem conter quaisquer caracteres, excepto ASCII NULL (0x00 ou \0 em C). Nas cadeias, os delimitadores de comentários não têm significado especial. Se for escrito um literal que contenha o carácter nulo (~0 em FIR), então a cadeia termina nessa posição. Exemplo: 'ab~0xy' tem o mesmo significado que 'ab'.
+  As cadeias de caracteres são delimitadas por plicas (') e podem conter quaisquer caracteres, excepto ASCII NULL (0x00 ou \0 em C). Nas cadeias, os delimitadores de comentários não têm significado especial. Se for escrito um literal que contenha o carácter nulo (\~0 em FIR), então a cadeia termina nessa posição. Exemplo: 'ab\~0xy' tem o mesmo significado que 'ab'.
 
-  É possível designar caracteres por sequências especiais (iniciadas por ~), especialmente úteis quando não existe representação gráfica directa. As sequências especiais correspondem aos caracteres ASCII LF, CR e HT (\n, \r e \t, respectivamente, em C e ~n, ~r, ~t, respectivamente, em FIR), plica (~'), til (~~), ou a quaisquer outros especificados através de 1 ou 2 digitos hexadecimais (e.g. ~0a ou apenas ~a se o carácter seguinte não representar um dígito hexadecimal).
+  É possível designar caracteres por sequências especiais (iniciadas por \~), especialmente úteis quando não existe representação gráfica directa. As sequências especiais correspondem aos caracteres ASCII LF, CR e HT (\n, \r e \t, respectivamente, em C e ~n, ~r, ~t, respectivamente, em FIR), plica (\~'), til (\~\~), ou a quaisquer outros especificados através de 1 ou 2 digitos hexadecimais (e.g. \~0a ou apenas \~a se o carácter seguinte não representar um dígito hexadecimal).
 
   Elementos lexicais distintos que representem duas ou mais cadeias consecutivas são representadas na linguagem como uma única cadeia que resulta da concatenação.
 
@@ -172,7 +177,10 @@ Cada bloco tem uma zona de declaração de variáveis locais e uma zona de instr
 As variáveis só são visíveis dentro desse bloco, exceto aquelas definidas no **prólogo**. Podem ser passadas como argumentos para outras funções. 
 
 #### **Instrução _leave_**
-Termina o ciclo mais interior (como a instrução `break` em C). Só pode existir dentro de um ciclo e não pode ser usada na parte **finally**. Se for usada com um literal inteiro, reinicia o ciclo correspondente à ordem indicada pelo inteiro (1 é o mais interno, 2 é o seguinte, etc).
+A instrução `leave` termina o ciclo mais interior em que a instrução se encontrar, tal como a instrução break em C. Esta instrução só pode existir dentro de um ciclo (não pode ser usada na parte que segue a palavra **finally**), sendo a última instrução do seu bloco. Se for usada com um literal inteiro, termina o ciclo correspondente à ordem indicada pelo inteiro (1 é o mais interno, 2 é o seguinte, etc.).
+
+#### **Instrução _restart_**
+A instrução `restart` reinicia o ciclo mais interior em que a instrução se encontrar, tal como a instrução continue em C. Esta instrução só pode existir dentro de um ciclo (não pode ser usada na parte que segue a palavra **finally**), sendo a última instrução do seu bloco. Se for usada com um literal inteiro, reinicia o ciclo correspondente à ordem indicada pelo inteiro (1 é o mais interno, 2 é o seguinte, etc.).
 
 #### **Instruções de Impressão**
 Usa-se as palavras `write` e `writeln`
