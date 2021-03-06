@@ -4,26 +4,39 @@
 ---
 ## Indice
 - [Projeto de Compiladores](#projeto-de-compiladores)
-    - [Ver Enunciado e Avaliação](#ver-enunciado-e-avaliação)
+    - [Ver **Enunciado** e [**Avaliação**](https://web.tecnico.ulisboa.pt/~david.matos/w/pt/index.php/Compiladores/Projecto_de_Compiladores)](#ver-enunciado-e-avaliação)
   - [Indice](#indice)
   - [Linguagem FIR](#linguagem-fir)
     - [Tipos de Dados](#tipos-de-dados)
     - [Manipulação de Nomes](#manipulação-de-nomes)
     - [Convenções Lexicais](#convenções-lexicais)
-      - [Caracteres brancos](#caracteres-brancos)
-      - [Comentários](#comentários)
-      - [Palavras chave](#palavras-chave)
-      - [Tipos](#tipos)
-      - [Delimitadores e terminadores](#delimitadores-e-terminadores)
-      - [Identificadores (nomes)](#identificadores-nomes)
-    - [Estrutura/Sintaxe](##estrutura/sintaxe-=-gramática)
+      - [**Caracteres brancos**](#caracteres-brancos)
+      - [**Comentários**](#comentários)
+      - [**Palavras chave**](#palavras-chave)
+      - [**Tipos**](#tipos)
+      - [**Delimitadores e terminadores**](#delimitadores-e-terminadores)
+      - [**Identificadores (nomes)**](#identificadores-nomes)
+      - [**Literais**](#literais)
+    - [Estrutura/Sintaxe = Gramática](#estruturasintaxe--gramática)
+      - [**Declaração de Variáveis**](#declaração-de-variáveis)
+      - [**Símbolos Globais**](#símbolos-globais)
     - [Especificação das Funções](#especificação-das-funções)
+      - [**Invocação**](#invocação)
+      - [**Corpo**](#corpo)
+      - [**Função Principal e Execução de Programas**](#função-principal-e-execução-de-programas)
     - [Semântica das Instruções](#semântica-das-instruções)
+      - [**Blocos**](#blocos)
+      - [**Instrução _leave_**](#instrução-leave)
+      - [**Instruções de Impressão**](#instruções-de-impressão)
     - [Semântica das Expressões](#semântica-das-expressões)
-  - [Como compilar](#como-compilar)
-  - [Entrega Inicial](#entrega-inicial---dia-20210322-1700)
+      - [**Expressões primitivas**](#expressões-primitivas)
+      - [**Expressões resultantes de avaliação de operadores**](#expressões-resultantes-de-avaliação-de-operadores)
+    - [Exemplos](#exemplos)
+  - [Como compilar:](#como-compilar)
+  - [Entrega Inicial - dia 2021/03/22 17:00](#entrega-inicial---dia-20210322-1700)
   - [Commitar com CVS](#commitar-com-cvs)
   - [ToDo](#todo)
+  - [- olhar para os compiladores ***Simple*** e ***Og***](#--olhar-para-os-compiladores-simple-e-og)
   - [Hints](#hints)
 
 ---
@@ -258,7 +271,8 @@ A informação do CVS foi retirada deste repositório para evitar conflitos.
 Para commitar com o CVS:
 1. Fazer novamente checkout do repositório para outra diretoria;
 2. Copiar o conteúdo deste repositório para cima dessa diretoria, mergindo as subpastas;
-3. Commitar a partir dessa diretoria.
+3. Remover README.md;
+4. Commitar a partir dessa diretoria.
 
 ---
 ## ToDo
