@@ -348,7 +348,7 @@ basic_node
 - [ ] left_index_node.h
 - [ ] nullptr_node.h
 - [ ] return_node.h
-- [ ] sizeof_node.h
+- [x] sizeof_node.h
 - [ ] stack_alloc_node.h
 - [ ] tuple_declaration_node.h
 - [ ] tuple_index_node.h
