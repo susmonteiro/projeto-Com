@@ -333,30 +333,6 @@ basic_node
         └── variable_node
 ```
 
-### Nodes ToDo
-
-- [ ] address_of_node.h
-- [ ] block_node.h
-- [ ] break_node.h
-- [ ] continue_node.h
-- [ ] function_call_node.h
-- [ ] function_declaration_node.h
-- [ ] function_definition_node.h
-- [ ] identity_node.h
-- [ ] index_node.h
-- [ ] input_node.h
-- [ ] left_index_node.h
-- [ ] nullptr_node.h
-- [ ] return_node.h
-- [ ] sizeof_node.h
-- [ ] stack_alloc_node.h
-- [ ] tuple_declaration_node.h
-- [ ] tuple_index_node.h
-- [ ] tuple_node.h
-- [ ] variable_declaration_node.h
-- [ ] write_node.h
-- [ ] writeln_node.h
-
 Para cada nó:
 - ficheiro .h
   - ifndefs
