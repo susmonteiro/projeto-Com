@@ -72,7 +72,6 @@ stmt : expr ';'                         { $$ = new fir::evaluation_node(LINE, $1
      | leave                            { $$ = $1; }
      | restart                          { $$ = $1; }
      | tRETURN ';'                      { $$ = new fir::return_node(LINE); }
-     | tREAD lval ';'                   { $$ = new fir::read_node(LINE, $2); }
      | tWHILE '(' expr ')' stmt         { $$ = new fir::while_node(LINE, $3, $5); }
      | tIF '(' expr ')' stmt %prec tIFX { $$ = new fir::if_node(LINE, $3, $5); }
      | tIF '(' expr ')' stmt tELSE stmt { $$ = new fir::if_else_node(LINE, $3, $5, $7); }
@@ -97,9 +96,10 @@ expr : tINTEGER                   { $$ = new cdk::integer_node(LINE, $1); }
      | '(' expr ')'               { $$ = $2; }
      | lval                       { $$ = new cdk::rvalue_node(LINE, $1); }  //FIXME
      | lval '=' expr              { $$ = new cdk::assignment_node(LINE, $1, $3); }
+     | tREAD                      { $$ = new fir::read_node(LINE); }
      ;
 
-lval : tIDENTIFIER             { $$ = new cdk::variable_node(LINE, $1); }
+lval : tIDENTIFIER                 { $$ = new cdk::variable_node(LINE, $1); }
      ;
 
 leave : tLEAVE ';'                      { $$ = new fir::leave_node(LINE); }

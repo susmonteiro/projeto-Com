@@ -30,7 +30,7 @@
 "leave"                return tLEAVE; 
 "restart"              return tRESTART; 
 "return"               return tRETURN; 
-"read"                 return tREAD; 
+"@"                    return tREAD; 
 "begin"                return tBEGIN; 
 "end"                  return tEND; 
 

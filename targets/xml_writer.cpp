@@ -144,10 +144,10 @@ void fir::xml_writer::do_print_node(fir::print_node * const node, int lvl) {
 //---------------------------------------------------------------------------
 
 void fir::xml_writer::do_read_node(fir::read_node * const node, int lvl) {
-  ASSERT_SAFE_EXPRESSIONS;
+  /* ASSERT_SAFE_EXPRESSIONS;
   openTag(node, lvl);
   node->argument()->accept(this, lvl + 2);
-  closeTag(node, lvl);
+  closeTag(node, lvl); */
 }
 
 //---------------------------------------------------------------------------
