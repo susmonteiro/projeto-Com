@@ -234,3 +234,12 @@ void fir::xml_writer::do_return_node(fir::return_node * const node, int lvl) {
   // node->argument()->accept(this, lvl + 2);
   // closeTag(node, lvl);
 }
+
+//---------------------------------------------------------------------------
+
+void fir::xml_writer::do_block_node(fir::block_node * const node, int lvl) {
+  // ASSERT_SAFE_EXPRESSIONS;
+  // openTag(node, lvl);
+  // node->argument()->accept(this, lvl + 2);
+  // closeTag(node, lvl);
+}

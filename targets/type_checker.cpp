@@ -212,3 +212,12 @@ void fir::type_checker::do_restart_node(fir::restart_node *const node, int lvl) 
 void fir::type_checker::do_return_node(fir::return_node *const node, int lvl) {
   // node->argument()->accept(this, lvl + 2);
 }
+
+//---------------------------------------------------------------------------
+
+
+void fir::type_checker::do_block_node(fir::block_node *const node, int lvl) {
+  // node->argument()->accept(this, lvl + 2);
+}
+
+//---------------------------------------------------------------------------

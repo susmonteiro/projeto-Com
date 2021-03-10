@@ -24,15 +24,19 @@
   std::shared_ptr<cdk::basic_type> type;        /* expression type */
   //-- don't change *any* of these --- END!
 
-  int                   i;	/* integer value */
-  std::string          *s;	/* symbol name or string literal */
-  cdk::basic_node      *node;	/* node pointer */
-  cdk::sequence_node   *sequence;
-  cdk::expression_node *expression; /* expression nodes */
-  cdk::lvalue_node     *lvalue;
+  int                   i;	     /* integer value */
+  float                 f;         /* float value */ /* TODO check */
+  std::string           *s;	     /* symbol name or string literal */
+  cdk::basic_node       *node;	/* node pointer */
+  cdk::sequence_node    *sequence;
+  cdk::expression_node  *expression; /* expression nodes */
+  cdk::lvalue_node      *lvalue;
+
+  fir::block_node       *block;    /* TODO check */
 };
 
 %token <i> tINTEGER
+%token <f> tREAL    /* TODO check */
 %token <s> tIDENTIFIER tSTRING
 %token tWHILE tIF tPRINT tSIZEOF tLEAVE tRESTART tRETURN tREAD tBEGIN tEND
 
@@ -45,10 +49,11 @@
 %left '*' '/' '%'
 %nonassoc tUNARY
 
-%type <node> stmt program
+%type <node> stmt program leave restart
 %type <sequence> list
 %type <expression> expr
 %type <lvalue> lval
+/* %type <block> block */ /* TODO check */
 
 %{
 //-- The rules below will be included in yyparse, the main parsing function.
@@ -59,16 +64,15 @@ program	: tBEGIN list tEND { compiler->ast(new fir::program_node(LINE, $2)); }
 	      ;
 
 list : stmt	     { $$ = new cdk::sequence_node(LINE, $1); }
-	   | list stmt { $$ = new cdk::sequence_node(LINE, $2, $1); }
-	   ;
+     | list stmt { $$ = new cdk::sequence_node(LINE, $2, $1); }
+     ;
 
+        
 stmt : expr ';'                         { $$ = new fir::evaluation_node(LINE, $1); }
      | tPRINT expr ';'                  { $$ = new fir::print_node(LINE, $2); }
      | tSIZEOF '(' expr ')' ';'         { $$ = new fir::sizeof_node(LINE, $3); }
-     | tLEAVE ';'                       { $$ = new fir::leave_node(LINE); }
-     | tLEAVE tINTEGER ';'              { $$ = new fir::leave_node(LINE, $2); }
-     | tRESTART ';'                     { $$ = new fir::restart_node(LINE); }
-     | tRESTART tINTEGER ';'            { $$ = new fir::restart_node(LINE, $2); }
+     | leave                            { $$ = $1; }
+     | restart                          { $$ = $1; }
      | tRETURN ';'                      { $$ = new fir::return_node(LINE); }
      | tREAD lval ';'                   { $$ = new fir::read_node(LINE, $2); }
      | tWHILE '(' expr ')' stmt         { $$ = new fir::while_node(LINE, $3, $5); }
@@ -78,6 +82,7 @@ stmt : expr ';'                         { $$ = new fir::evaluation_node(LINE, $1
      ;
 
 expr : tINTEGER                   { $$ = new cdk::integer_node(LINE, $1); }
+     | tREAL                      { $$ = new cdk::double_node(LINE, $1); } /* TODO check */
      | tSTRING                    { $$ = new cdk::string_node(LINE, $1); }
      | '-' expr %prec tUNARY      { $$ = new cdk::neg_node(LINE, $2); }
      | expr '+' expr	         { $$ = new cdk::add_node(LINE, $1, $3); }
@@ -98,5 +103,13 @@ expr : tINTEGER                   { $$ = new cdk::integer_node(LINE, $1); }
 
 lval : tIDENTIFIER             { $$ = new cdk::variable_node(LINE, $1); }
      ;
+
+leave : tLEAVE ';'                      { $$ = new fir::leave_node(LINE); }
+      | tLEAVE tINTEGER ';'             { $$ = new fir::leave_node(LINE, $2); }
+      ;
+
+restart : tRESTART ';'                  { $$ = new fir::restart_node(LINE); }
+        | tRESTART tINTEGER ';'         { $$ = new fir::restart_node(LINE, $2); }
+        ;
 
 %%
