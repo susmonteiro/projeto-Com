@@ -24,7 +24,7 @@
 "while"                return tWHILE; 
 "if"                   return tIF; 
 "else"                 return tELSE; 
-"print"                return tPRINT; 
+"write"                return tWRITE; 
 "sizeof"               return tSIZEOF; 
 "leave"                return tLEAVE; 
 "restart"              return tRESTART; 
