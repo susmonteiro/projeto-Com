@@ -27,6 +27,7 @@
   int                   i;	     /* integer value */
   float                 f;         /* float value */ /* TODO check */
   std::string           *s;	     /* symbol name or string literal */
+
   cdk::basic_node       *node;	/* node pointer */
   cdk::sequence_node    *sequence;
   cdk::expression_node  *expression; /* expression nodes */
@@ -38,6 +39,8 @@
 %token <i> tINTEGER
 %token <f> tREAL    /* TODO check */
 %token <s> tIDENTIFIER tSTRING
+%token tTYPE_INT tTYPE_FLOAT tTYPE_STRING tTYPE_VOID
+%token tPUBLIC tEXTERNAL
 %token tWHILE tIF tWRITE tWRITELN tSIZEOF tLEAVE tRESTART tRETURN tREAD tBEGIN tEND
 
 %nonassoc tIFX
@@ -48,6 +51,8 @@
 %left '+' '-'
 %left '*' '/' '%'
 %nonassoc tUNARY
+
+// %type<type> data_type
 
 %type <node> stmt leave restart
 %type <sequence> list
@@ -101,6 +106,14 @@ expr : tINTEGER                   { $$ = new cdk::integer_node(LINE, $1); }
 
 lval : tIDENTIFIER                 { $$ = new cdk::variable_node(LINE, $1); }
      ;
+
+/* TODO check */
+/* data_type : tTYPE_INT                   { $$ = cdk::primitive_type::create(4, cdk::TYPE_INT); }
+          | tTYPE_FLOAT                 { $$ = cdk::primitive_type::create(8, cdk::TYPE_FLOAT);  }
+          | tTYPE_STRING                { $$ = cdk::primitive_type::create(4, cdk::TYPE_STRING);  }
+          | '<' data_type '>'           { $$ = cdk::reference_type::create(4, $2); } 
+          ; */
+
 
 leave : tLEAVE ';'                      { $$ = new fir::leave_node(LINE); }
       | tLEAVE tINTEGER ';'             { $$ = new fir::leave_node(LINE, $2); }

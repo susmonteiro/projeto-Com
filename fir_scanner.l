@@ -16,6 +16,12 @@
 
 "--".*                 ; /* ignore comments */
 
+"int"                  return tTYPE_INT;
+"float"                return tTYPE_FLOAT;
+"string"               return tTYPE_STRING;
+"void"                 return tTYPE_VOID;
+
+
 ">="                   return tGE; 
 "<="                   return tLE; 
 "=="                   return tEQ; 
@@ -33,6 +39,9 @@
 "@"                    return tREAD; 
 "begin"                return tBEGIN; 
 "end"                  return tEND; 
+
+"*"                    return tPUBLIC;
+"?"                    return tEXTERNAL; 
 
 [A-Za-z][A-Za-z0-9_]*  yylval.s = new std::string(yytext); return tIDENTIFIER;
 

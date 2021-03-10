@@ -217,3 +217,9 @@ void fir::type_checker::do_block_node(fir::block_node *const node, int lvl) {
 }
 
 //---------------------------------------------------------------------------
+
+void fir::type_checker::do_variable_declaration_node(fir::variable_declaration_node *const node, int lvl) {
+  // node->argument()->accept(this, lvl + 2);
+}
+
+//---------------------------------------------------------------------------
