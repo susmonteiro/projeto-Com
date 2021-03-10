@@ -49,7 +49,7 @@
 %left '*' '/' '%'
 %nonassoc tUNARY
 
-%type <node> stmt program leave restart
+%type <node> stmt leave restart
 %type <sequence> list
 %type <expression> expr
 %type <lvalue> lval
@@ -59,9 +59,6 @@
 //-- The rules below will be included in yyparse, the main parsing function.
 %}
 %%
-
-program	: tBEGIN list tEND { compiler->ast(new fir::program_node(LINE, $2)); }
-	      ;
 
 list : stmt	     { $$ = new cdk::sequence_node(LINE, $1); }
      | list stmt { $$ = new cdk::sequence_node(LINE, $2, $1); }

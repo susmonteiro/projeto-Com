@@ -153,10 +153,6 @@ void fir::type_checker::do_assignment_node(cdk::assignment_node *const node, int
 
 //---------------------------------------------------------------------------
 
-void fir::type_checker::do_program_node(fir::program_node *const node, int lvl) {
-  // EMPTY
-}
-
 void fir::type_checker::do_evaluation_node(fir::evaluation_node *const node, int lvl) {
   node->argument()->accept(this, lvl + 2);
 }
