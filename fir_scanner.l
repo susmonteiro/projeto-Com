@@ -25,6 +25,7 @@
 "if"                   return tIF; 
 "else"                 return tELSE; 
 "write"                return tWRITE; 
+"writeln"              return tWRITELN;
 "sizeof"               return tSIZEOF; 
 "leave"                return tLEAVE; 
 "restart"              return tRESTART; 
