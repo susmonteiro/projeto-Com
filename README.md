@@ -18,6 +18,7 @@
 - [ToDo](#todo)
 - [Nodes](#nodes)
   - [Nodes do CDK](#nodes-do-cdk)
+- [FAQs](#faqs)
 - [Hints](#hints)
 
 ---
@@ -314,6 +315,15 @@ Para cada nó:
 - xml_writer.cpp
 - type_checker.cpp
 - postfix_writer.cpp
+
+---
+## FAQs
+- Quando usar os vários tipos de nodes
+  - **basic_node** -- base class for all nodes: provides information about the program location (code line)
+  - **sequence_node** -- node for representing sequences of other nodes
+  - **typed_node** -- node for typed entities (any entity that has a type): the main subclasses are expression_node, lvalue_node, and (in specific compilers) function/variable declaration (and definition) nodes
+
+- Declaração de funções: não tem ->
 
 ---
 ## Hints
