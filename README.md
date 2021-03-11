@@ -15,6 +15,7 @@
 - [Como compilar:](#como-compilar)
 - [Entrega Inicial](#entrega-inicial---dia-20210322-1700)
 - [Commitar com CVS](#commitar-com-cvs)
+- [Questions](#questions)
 - [ToDo](#todo)
 - [Nodes](#nodes)
   - [Nodes do CDK](#nodes-do-cdk)
@@ -258,6 +259,11 @@ Para commitar com o CVS:
 2. Copiar o conteúdo deste repositório para cima dessa diretoria, mergindo as subpastas;
 3. Remover README.md;
 4. Commitar a partir dessa diretoria.
+
+## Questions
+- prologue e epilogue devem ser nodes? é preciso ter os tokens no scanner?
+- quando é que devemos ter um token ou não no scanner 
+- o que é o yytext
 
 ---
 ## ToDo
