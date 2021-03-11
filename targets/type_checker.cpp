@@ -216,6 +216,14 @@ void fir::type_checker::do_block_node(fir::block_node *const node, int lvl) {
   // node->argument()->accept(this, lvl + 2);
 }
 
+void fir::type_checker::do_prologue_node(fir::prologue_node *const node, int lvl) {
+  // node->argument()->accept(this, lvl + 2);
+}
+
+void fir::type_checker::do_epilogue_node(fir::epilogue_node *const node, int lvl) {
+  // node->argument()->accept(this, lvl + 2);
+}
+
 //---------------------------------------------------------------------------
 
 void fir::type_checker::do_variable_declaration_node(fir::variable_declaration_node *const node, int lvl) {
