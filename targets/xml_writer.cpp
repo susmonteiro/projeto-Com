@@ -260,3 +260,12 @@ void fir::xml_writer::do_variable_declaration_node(fir::variable_declaration_nod
 }
 
 //---------------------------------------------------------------------------
+
+void fir::xml_writer::do_function_declaration_node(fir::function_declaration_node * const node, int lvl) {
+  // ASSERT_SAFE_EXPRESSIONS;
+  // openTag(node, lvl);
+  // node->argument()->accept(this, lvl + 2);
+  // closeTag(node, lvl);
+}
+
+//---------------------------------------------------------------------------

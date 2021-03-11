@@ -231,3 +231,9 @@ void fir::type_checker::do_variable_declaration_node(fir::variable_declaration_n
 }
 
 //---------------------------------------------------------------------------
+
+void fir::type_checker::do_function_declaration_node(fir::function_declaration_node *const node, int lvl) {
+  // node->argument()->accept(this, lvl + 2);
+}
+
+//---------------------------------------------------------------------------

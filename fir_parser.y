@@ -108,7 +108,7 @@ lval : tIDENTIFIER                 { $$ = new cdk::variable_node(LINE, $1); }
      ;
 
 /* TODO check */
-/* data_type : tTYPE_INT                   { $$ = cdk::primitive_type::create(4, cdk::TYPE_INT); }
+/* data_type : tTYPE_INT                { $$ = cdk::primitive_type::create(4, cdk::TYPE_INT); }
           | tTYPE_FLOAT                 { $$ = cdk::primitive_type::create(8, cdk::TYPE_FLOAT);  }
           | tTYPE_STRING                { $$ = cdk::primitive_type::create(4, cdk::TYPE_STRING);  }
           | '<' data_type '>'           { $$ = cdk::reference_type::create(4, $2); } 

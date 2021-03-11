@@ -283,3 +283,9 @@ void fir::postfix_writer::do_epilogue_node(fir::epilogue_node * const node, int 
 void fir::postfix_writer::do_variable_declaration_node(fir::variable_declaration_node * const node, int lvl) {
   // TODO
 }
+
+//---------------------------------------------------------------------------
+
+void fir::postfix_writer::do_function_declaration_node(fir::function_declaration_node * const node, int lvl) {
+  // TODO
+}
