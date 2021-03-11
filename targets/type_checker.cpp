@@ -190,54 +190,56 @@ void fir::type_checker::do_if_else_node(fir::if_else_node *const node, int lvl) 
 //---------------------------------------------------------------------------
 
 void fir::type_checker::do_sizeof_node(fir::sizeof_node *const node, int lvl) {
-  // node->argument()->accept(this, lvl + 2);
+  // TODO
 }
 
 //---------------------------------------------------------------------------
 
 void fir::type_checker::do_leave_node(fir::leave_node *const node, int lvl) {
-  // node->argument()->accept(this, lvl + 2);
+  // TODO
 }
 
 void fir::type_checker::do_restart_node(fir::restart_node *const node, int lvl) {
-  // node->argument()->accept(this, lvl + 2);
+  // TODO
 }
 
 //---------------------------------------------------------------------------
 
 void fir::type_checker::do_return_node(fir::return_node *const node, int lvl) {
-  // node->argument()->accept(this, lvl + 2);
+  // TODO
 }
 
 //---------------------------------------------------------------------------
 
 
 void fir::type_checker::do_block_node(fir::block_node *const node, int lvl) {
-  // node->argument()->accept(this, lvl + 2);
+  // TODO
 }
 
 void fir::type_checker::do_prologue_node(fir::prologue_node *const node, int lvl) {
-  // node->argument()->accept(this, lvl + 2);
+  // TODO
 }
 
 void fir::type_checker::do_epilogue_node(fir::epilogue_node *const node, int lvl) {
-  // node->argument()->accept(this, lvl + 2);
+  // TODO
 }
 
 //---------------------------------------------------------------------------
 
 void fir::type_checker::do_variable_declaration_node(fir::variable_declaration_node *const node, int lvl) {
-  // node->argument()->accept(this, lvl + 2);
+  // TODO
 }
 
 //---------------------------------------------------------------------------
 
 void fir::type_checker::do_function_declaration_node(fir::function_declaration_node *const node, int lvl) {
-  // node->argument()->accept(this, lvl + 2);
+  // TODO
 }
 
 void fir::type_checker::do_function_definition_node(fir::function_definition_node *const node, int lvl) {
-  // node->argument()->accept(this, lvl + 2);
+  // TODO
 }
 
-//---------------------------------------------------------------------------
+void fir::type_checker::do_function_call_node(fir::function_call_node *const node, int lvl) {
+  // TODO
+}
