@@ -289,3 +289,7 @@ void fir::postfix_writer::do_variable_declaration_node(fir::variable_declaration
 void fir::postfix_writer::do_function_declaration_node(fir::function_declaration_node * const node, int lvl) {
   // TODO
 }
+
+void fir::postfix_writer::do_function_definition_node(fir::function_definition_node * const node, int lvl) {
+  // TODO
+}

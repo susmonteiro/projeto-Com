@@ -33,11 +33,11 @@ namespace fir {
     }
 
   public:
-    int qualifier() {
-      return _qualifier;
-    }
     const std::string& identifier() const {
       return _identifier;
+    }
+    int qualifier() {
+      return _qualifier;
     }
 
     // TODO o ké istooo??

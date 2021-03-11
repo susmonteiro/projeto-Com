@@ -236,4 +236,8 @@ void fir::type_checker::do_function_declaration_node(fir::function_declaration_n
   // node->argument()->accept(this, lvl + 2);
 }
 
+void fir::type_checker::do_function_definition_node(fir::function_definition_node *const node, int lvl) {
+  // node->argument()->accept(this, lvl + 2);
+}
+
 //---------------------------------------------------------------------------
