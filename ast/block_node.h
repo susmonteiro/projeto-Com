@@ -2,6 +2,7 @@
 #define __FIR_AST_BLOCK_NODE_H__
 
 #include <cdk/ast/basic_node.h>
+#include <cdk/ast/sequence_node.h>
 
 namespace fir {
 
