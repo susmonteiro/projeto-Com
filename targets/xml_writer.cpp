@@ -240,3 +240,7 @@ void fir::xml_writer::do_function_definition_node(fir::function_definition_node 
 void fir::xml_writer::do_function_call_node(fir::function_call_node * const node, int lvl) {
   // TODO
 }
+
+void fir::xml_writer::do_null_node(fir::null_node *const node, int lvl) {
+  // TODO
+}

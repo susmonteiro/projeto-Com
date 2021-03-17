@@ -235,3 +235,7 @@ void fir::type_checker::do_function_definition_node(fir::function_definition_nod
 void fir::type_checker::do_function_call_node(fir::function_call_node *const node, int lvl) {
   // TODO
 }
+
+void fir::type_checker::do_null_node(fir::null_node *const node, int lvl) {
+  // TODO
+}
