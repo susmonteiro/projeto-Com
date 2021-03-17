@@ -293,3 +293,7 @@ void fir::postfix_writer::do_function_call_node(fir::function_call_node * const 
 void fir::postfix_writer::do_null_node(fir::null_node *const node, int lvl) {
   // EMPTY
 }
+
+void fir::postfix_writer::do_address_of_node(fir::address_of_node *const node, int lvl) {
+  // TODO
+}

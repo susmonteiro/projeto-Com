@@ -244,3 +244,7 @@ void fir::xml_writer::do_function_call_node(fir::function_call_node * const node
 void fir::xml_writer::do_null_node(fir::null_node *const node, int lvl) {
   // TODO
 }
+
+void fir::xml_writer::do_address_of_node(fir::address_of_node *const node, int lvl) {
+  // TODO
+}
