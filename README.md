@@ -255,10 +255,12 @@ Nesta fase, além da estrutura básica do compilador, todas as classes dos nós 
 A informação do CVS foi retirada deste repositório para evitar conflitos.
 
 Para commitar com o CVS:
-1. Fazer novamente checkout do repositório para outra diretoria;
-2. Copiar o conteúdo deste repositório para cima dessa diretoria, mergindo as subpastas;
-3. Remover README.md;
-4. Commitar a partir dessa diretoria.
+1. Fazer `make clean`;
+2. Fazer novamente checkout do repositório para outra diretoria;
+3. Copiar o conteúdo deste repositório para cima dessa diretoria, mergindo as subpastas;
+4. Remover README.md;
+5. Remover ficheiros apagados;
+6. Commitar a partir dessa diretoria.
 
 ## Questions
 - prologue e epilogue devem ser nodes? é preciso ter os tokens no scanner?
