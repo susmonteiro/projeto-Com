@@ -337,3 +337,6 @@ Para cada nó:
 - não mexer nos if-then-else que estão no CVS porque "não há outra forma de fazer"
 - usar os últimos 4 ficheiros para instalar a máquina virtual (básico para correr o compilador, mas não necessário)
 - ver vídeo da aula #2
+- não mexer no scanner.h
+- fazer debug do flag -> juntar a *flag* `debug` na segunda linha
+- no scanner, "." é qualquer caracter exceto `\n`
