@@ -248,7 +248,9 @@ ld -melf_i386 -o main factorial.o main.o -lrts
 ## Entrega Inicial - dia 2021/03/22 17:00
 Nesta fase, além da estrutura básica do compilador, todas as classes dos nós da linguagem, assim como os esqueletos dos "visitors" (xml_writer, postfix_writer, etc.) devem estar implementados. Não é ainda necessário ter implementado nenhum código de análise lexical, sintáctica ou semântica.
 
-> ver pauta de avaliação, ainda não disponível (?)
+```
+for f in postfix_writer type_checker xml_writer; do cdk target --language fir --target ${f} | tail -4 | sed -r 's/EMPTY/TODO/g' >> targets/${f}.cpp; done
+```
 
 ---
 ## Commitar com CVS
