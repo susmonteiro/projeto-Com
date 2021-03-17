@@ -5,9 +5,7 @@
 #include <cdk/ast/typed_node.h>
 #include <cdk/ast/sequence_node.h>
 #include <cdk/ast/literal_node.h>
-#include "prologue_node.h"
 #include "block_node.h"
-#include "epilogue_node.h"
 
 namespace fir {
 
@@ -25,16 +23,16 @@ namespace fir {
     int _qualifier;
     cdk::sequence_node *_arguments;
     cdk::expression_node *_return_value;
-    fir::prologue_node *_prologue;
+    fir::block_node *_prologue;
     fir::block_node *_block;
-    fir::epilogue_node *_epilogue;
+    fir::block_node *_epilogue;
 
   public:
     // TODO o que e' isto
 
     function_definition_node(int lineno, const std::string &identifier, int qualifier, std::shared_ptr<cdk::basic_type> functionType,
                               cdk::sequence_node *arguments, cdk::expression_node *return_value,
-                              fir::prologue_node *prologue, fir::block_node *block, fir::epilogue_node *epilogue) :
+                              fir::block_node *prologue, fir::block_node *block, fir::block_node *epilogue) :
         cdk::typed_node(lineno), _identifier(identifier), _qualifier(qualifier), _arguments(arguments), 
         _return_value(return_value), _prologue(prologue), _block(block), _epilogue(epilogue) {
       type(functionType);
@@ -61,7 +59,7 @@ namespace fir {
       return _return_value;
     }
 
-    fir::prologue_node* prologue() {
+    fir::block_node* prologue() {
         return _prologue;
     }
 
@@ -69,7 +67,7 @@ namespace fir {
         return _block;
     }
 
-    fir::epilogue_node* epilogue() {
+    fir::block_node* epilogue() {
         return _epilogue;
     }
 

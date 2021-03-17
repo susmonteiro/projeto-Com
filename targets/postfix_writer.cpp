@@ -270,14 +270,6 @@ void fir::postfix_writer::do_block_node(fir::block_node * const node, int lvl) {
   // TODO
 }
 
-void fir::postfix_writer::do_prologue_node(fir::prologue_node * const node, int lvl) {
-  // TODO
-}
-
-void fir::postfix_writer::do_epilogue_node(fir::epilogue_node * const node, int lvl) {
-  // TODO
-}
-
 //---------------------------------------------------------------------------
 
 void fir::postfix_writer::do_variable_declaration_node(fir::variable_declaration_node * const node, int lvl) {
