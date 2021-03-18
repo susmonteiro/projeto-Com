@@ -9,15 +9,9 @@
 
 namespace fir {
 
-  //!
-  //! Class for describing function definitions.
-  //! <pre>
-  //! definition: type qualifier id '(' args ')'
-  //!            {
-  //!              new fir::function::Definition(LINE, $1, $2, $3, $5);
-  //!            }
-  //! </pre>
-  //!
+  /**
+   * Class for describing function definitions.
+   */
   class function_definition_node: public cdk::typed_node {
     std::string _identifier;
     int _qualifier;

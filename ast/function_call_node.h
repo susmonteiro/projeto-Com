@@ -9,13 +9,9 @@
 
 namespace fir {
 
-  //!
-  //! Class for describing function call nodes.
-  //!
-  //! If _arguments is null, them the node is either a call to a function with
-  //! no arguments (or in which none of the default arguments is present) or
-  //! an access to a variable.
-  //!
+  /**
+   * Class for describing function call nodes.
+   */
   class function_call_node: public cdk::expression_node {
     std::string _identifier;
     cdk::sequence_node *_arguments;

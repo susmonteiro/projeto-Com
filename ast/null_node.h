@@ -5,6 +5,9 @@
 
 namespace fir {
 
+  /**
+   * Class for describing null nodes.
+   */
   class null_node: public cdk::expression_node {
   public:
     null_node(int lineno) :
