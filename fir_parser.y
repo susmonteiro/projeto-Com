@@ -41,7 +41,8 @@
 %token <s> tIDENTIFIER tSTRING
 %token tTYPE_INT tTYPE_FLOAT tTYPE_STRING tTYPE_VOID
 %token tPUBLIC tEXTERNAL
-%token tWHILE tIF tWRITE tWRITELN tSIZEOF tLEAVE tRESTART tRETURN tREAD tBEGIN tEND
+%token tWHILE tIF tTHEN tWRITE tWRITELN tSIZEOF tLEAVE tRESTART tRETURN tREAD tBEGIN tEND
+%token tDO tFINALLY  /* TODO do tDO and tFINALLY belong here? */
 
 %nonassoc tIFX
 %nonassoc tELSE
@@ -70,17 +71,18 @@ list : stmt	     { $$ = new cdk::sequence_node(LINE, $1); }
      ;
 
         
-stmt : expr ';'                         { $$ = new fir::evaluation_node(LINE, $1); }
-     | tWRITE list ';'                  { $$ = new fir::print_node(LINE, $2, false); }
-     | tWRITELN list ';'                { $$ = new fir::print_node(LINE, $2, true); }
-     | tSIZEOF '(' expr ')' ';'         { $$ = new fir::sizeof_node(LINE, $3); }
-     | leave                            { $$ = $1; }
-     | restart                          { $$ = $1; }
-     | tRETURN ';'                      { $$ = new fir::return_node(LINE); }
-     | tWHILE '(' expr ')' stmt         { $$ = new fir::while_node(LINE, $3, $5); }
-     | tIF '(' expr ')' stmt %prec tIFX { $$ = new fir::if_node(LINE, $3, $5); }
-     | tIF '(' expr ')' stmt tELSE stmt { $$ = new fir::if_else_node(LINE, $3, $5, $7); }
-     | '{' list '}'                     { $$ = $2; }
+stmt : expr ';'                            { $$ = new fir::evaluation_node(LINE, $1); }
+     | tWRITE list ';'                     { $$ = new fir::print_node(LINE, $2, false); }
+     | tWRITELN list ';'                   { $$ = new fir::print_node(LINE, $2, true); }
+     | tSIZEOF '(' expr ')' ';'            { $$ = new fir::sizeof_node(LINE, $3); }
+     | leave                               { $$ = $1; }
+     | restart                             { $$ = $1; }
+     | tRETURN ';'                         { $$ = new fir::return_node(LINE); }
+     | tWHILE expr tDO stmt                { $$ = new fir::while_node(LINE, $2, $4); }
+     | tWHILE expr tDO stmt tFINALLY stmt  { $$ = new fir::while_node(LINE, $2, $4, $6); }
+     | tIF '(' expr ')' stmt %prec tIFX    { $$ = new fir::if_node(LINE, $3, $5); }
+     | tIF '(' expr ')' stmt tELSE stmt    { $$ = new fir::if_else_node(LINE, $3, $5, $7); }
+     | '{' list '}'                        { $$ = $2; }
      ;
 
 expr : tINTEGER                   { $$ = new cdk::integer_node(LINE, $1); }

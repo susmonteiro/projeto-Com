@@ -39,6 +39,8 @@
 "@"                    return tREAD; 
 "begin"                return tBEGIN; 
 "end"                  return tEND; 
+"finally"              return tFINALLY; 
+"do"                   return tDO; 
 
 "*"                    return tPUBLIC;
 "?"                    return tEXTERNAL; 

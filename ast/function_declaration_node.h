@@ -24,8 +24,6 @@ namespace fir {
     cdk::expression_node *_return_value;
 
   public:
-    // TODO o que e' isto
-
     function_declaration_node(int lineno, const std::string &identifier, int qualifier, std::shared_ptr<cdk::basic_type> functionType,
                               cdk::sequence_node *arguments, cdk::expression_node *return_value) :
         cdk::typed_node(lineno), _identifier(identifier), _qualifier(qualifier), _arguments(arguments), _return_value(return_value) {
@@ -38,11 +36,6 @@ namespace fir {
     }
     int qualifier() {
       return _qualifier;
-    }
-
-    // TODO o ké istooo??
-    cdk::typed_node* argument(size_t ax) {
-      return dynamic_cast<cdk::typed_node*>(_arguments->node(ax));
     }
 
     cdk::sequence_node* arguments() {

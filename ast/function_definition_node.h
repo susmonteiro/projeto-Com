@@ -28,8 +28,6 @@ namespace fir {
     fir::block_node *_epilogue;
 
   public:
-    // TODO o que e' isto
-
     function_definition_node(int lineno, const std::string &identifier, int qualifier, std::shared_ptr<cdk::basic_type> functionType,
                               cdk::sequence_node *arguments, cdk::expression_node *return_value,
                               fir::block_node *prologue, fir::block_node *block, fir::block_node *epilogue) :
@@ -45,11 +43,6 @@ namespace fir {
     
     int qualifier() {
       return _qualifier;
-    }
-
-    // TODO o ké istooo??
-    cdk::typed_node* argument(size_t ax) {
-      return dynamic_cast<cdk::typed_node*>(_arguments->node(ax));
     }
 
     cdk::sequence_node* arguments() {
