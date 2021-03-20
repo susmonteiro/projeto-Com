@@ -15,12 +15,11 @@ namespace fir {
     std::string _identifier;
     int _qualifier;
     cdk::sequence_node *_arguments;
-    cdk::expression_node *_return_value;
 
   public:
-    function_declaration_node(int lineno, const std::string &identifier, int qualifier, std::shared_ptr<cdk::basic_type> functionType,
-                              cdk::sequence_node *arguments, cdk::expression_node *return_value) :
-        cdk::typed_node(lineno), _identifier(identifier), _qualifier(qualifier), _arguments(arguments), _return_value(return_value) {
+    function_declaration_node(int lineno, const std::string &identifier, int qualifier, 
+                              std::shared_ptr<cdk::basic_type> functionType, cdk::sequence_node *arguments) :
+        cdk::typed_node(lineno), _identifier(identifier), _qualifier(qualifier), _arguments(arguments) {
       type(functionType);
     }
 
@@ -28,15 +27,13 @@ namespace fir {
     const std::string& identifier() const {
       return _identifier;
     }
+
     int qualifier() {
       return _qualifier;
     }
 
     cdk::sequence_node* arguments() {
       return _arguments;
-    }
-    cdk::expression_node* return_value() {
-      return _return_value;
     }
 
     void accept(basic_ast_visitor *sp, int level) {
