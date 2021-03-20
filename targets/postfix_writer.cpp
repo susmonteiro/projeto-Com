@@ -297,3 +297,11 @@ void fir::postfix_writer::do_null_node(fir::null_node *const node, int lvl) {
 void fir::postfix_writer::do_address_of_node(fir::address_of_node *const node, int lvl) {
   // TODO
 }
+
+void fir::postfix_writer::do_index_node(fir::index_node *const node, int lvl) {
+  // TODO
+}
+
+void fir::postfix_writer::do_stack_alloc_node(fir::stack_alloc_node *const node, int lvl) {
+  // TODO
+}
