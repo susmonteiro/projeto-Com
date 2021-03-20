@@ -305,3 +305,11 @@ void fir::postfix_writer::do_index_node(fir::index_node *const node, int lvl) {
 void fir::postfix_writer::do_stack_alloc_node(fir::stack_alloc_node *const node, int lvl) {
   // TODO
 }
+
+void fir::postfix_writer::do_epilogue_node(fir::epilogue_node *const node, int lvl) {
+  // TODO
+}
+
+void fir::postfix_writer::do_prologue_node(fir::prologue_node *const node, int lvl) {
+  // TODO
+}
