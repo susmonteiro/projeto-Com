@@ -264,3 +264,7 @@ void fir::xml_writer::do_epilogue_node(fir::epilogue_node *const node, int lvl) 
 void fir::xml_writer::do_prologue_node(fir::prologue_node *const node, int lvl) {
   // TODO
 }
+
+void fir::xml_writer::do_identity_node(fir::identity_node *const node, int lvl) {
+  // TODO
+}

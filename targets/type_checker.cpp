@@ -259,3 +259,7 @@ void fir::type_checker::do_epilogue_node(fir::epilogue_node *const node, int lvl
 void fir::type_checker::do_prologue_node(fir::prologue_node *const node, int lvl) {
   // TODO
 }
+
+void fir::type_checker::do_identity_node(fir::identity_node *const node, int lvl) {
+  // TODO
+}

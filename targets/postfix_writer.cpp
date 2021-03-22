@@ -313,3 +313,7 @@ void fir::postfix_writer::do_epilogue_node(fir::epilogue_node *const node, int l
 void fir::postfix_writer::do_prologue_node(fir::prologue_node *const node, int lvl) {
   // TODO
 }
+
+void fir::postfix_writer::do_identity_node(fir::identity_node *const node, int lvl) {
+  // TODO
+}
