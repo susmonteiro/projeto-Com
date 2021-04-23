@@ -67,7 +67,7 @@
 %%
 
 list : stmt	     { $$ = new cdk::sequence_node(LINE, $1); }
-     | list stmt { $$ = new cdk::sequence_node(LINE, $2, $1); }
+     | list stmt    { $$ = new cdk::sequence_node(LINE, $2, $1); }
      ;
 
         

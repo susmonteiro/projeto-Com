@@ -252,10 +252,6 @@ void fir::type_checker::do_stack_alloc_node(fir::stack_alloc_node *const node, i
   // TODO
 }
 
-void fir::type_checker::do_epilogue_node(fir::epilogue_node *const node, int lvl) {
-  // TODO
-}
-
 void fir::type_checker::do_prologue_node(fir::prologue_node *const node, int lvl) {
   // TODO
 }
