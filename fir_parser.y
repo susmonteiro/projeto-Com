@@ -25,7 +25,7 @@
   //-- don't change *any* of these --- END!
 
   int                   i;	     /* integer value */
-  float                 f;         /* float value */ /* TODO check */
+  double                d;         /* double value */ /* TODO check */
   std::string           *s;	     /* symbol name or string literal */
 
   cdk::basic_node       *node;	/* node pointer */
@@ -33,7 +33,7 @@
   cdk::expression_node  *expression; /* expression nodes */
   cdk::lvalue_node      *lvalue;
 
-  fir::block_node       *block;    /* TODO check */
+/*  fir::block_node       *block; */    /* TODO check */
 };
 
 %token <i> tINTEGER
@@ -41,8 +41,9 @@
 %token <s> tIDENTIFIER tSTRING
 %token tTYPE_INT tTYPE_FLOAT tTYPE_STRING tTYPE_VOID
 %token tPUBLIC tEXTERNAL
-%token tWHILE tIF tTHEN tWRITE tWRITELN tSIZEOF tLEAVE tRESTART tRETURN tREAD tBEGIN tEND
+%token tWHILE tIF tTHEN tWRITE tWRITELN tSIZEOF tLEAVE tRESTART tRETURN
 %token tDO tFINALLY  /* TODO do tDO and tFINALLY belong here? */
+%token tNULL tAND tOR tDEFAULT_VALUE tEPILOGUE
 
 %nonassoc tIFX
 %nonassoc tELSE
@@ -55,10 +56,10 @@
 
 // %type<type> data_type
 
-%type <node> stmt leave restart
+%type <node> stmt
 %type <sequence> list
 %type <expression> expr
-%type <lvalue> lval
+// %type <lvalue> lval
 /* %type <block> block */ /* TODO check */
 
 %{
@@ -72,21 +73,21 @@ list : stmt	     { $$ = new cdk::sequence_node(LINE, $1); }
 
         
 stmt : expr ';'                            { $$ = new fir::evaluation_node(LINE, $1); }
-     | tWRITE list ';'                     { $$ = new fir::print_node(LINE, $2, false); }
+/*      | tWRITE list ';'                     { $$ = new fir::print_node(LINE, $2, false); }
      | tWRITELN list ';'                   { $$ = new fir::print_node(LINE, $2, true); }
      | tSIZEOF '(' expr ')' ';'            { $$ = new fir::sizeof_node(LINE, $3); }
      | leave                               { $$ = $1; }
      | restart                             { $$ = $1; }
      | tRETURN ';'                         { $$ = new fir::return_node(LINE); }
      | tWHILE expr tDO stmt                { $$ = new fir::while_node(LINE, $2, $4); }
-     | tWHILE expr tDO stmt tFINALLY stmt  { $$ = new fir::while_node(LINE, $2, $4, $6); }
+     | tWHILE expr tDO stmt tFINALLY stmt  { $$ = new fir::while_node(LINE, $2, $4, $6); } */     
      | tIF '(' expr ')' stmt %prec tIFX    { $$ = new fir::if_node(LINE, $3, $5); }
      | tIF '(' expr ')' stmt tELSE stmt    { $$ = new fir::if_else_node(LINE, $3, $5, $7); }
      | '{' list '}'                        { $$ = $2; }
      ;
 
 expr : tINTEGER                   { $$ = new cdk::integer_node(LINE, $1); }
-     | tREAL                      { $$ = new cdk::double_node(LINE, $1); } /* TODO check */
+     /* | tREAL                      { $$ = new cdk::double_node(LINE, $1); } */ /* TODO check */
      | tSTRING                    { $$ = new cdk::string_node(LINE, $1); }
      | '-' expr %prec tUNARY      { $$ = new cdk::neg_node(LINE, $2); }
      | expr '+' expr	         { $$ = new cdk::add_node(LINE, $1, $3); }
@@ -101,13 +102,13 @@ expr : tINTEGER                   { $$ = new cdk::integer_node(LINE, $1); }
      | expr tNE expr	         { $$ = new cdk::ne_node(LINE, $1, $3); }
      | expr tEQ expr	         { $$ = new cdk::eq_node(LINE, $1, $3); }
      | '(' expr ')'               { $$ = $2; }
-     | lval                       { $$ = new cdk::rvalue_node(LINE, $1); }  //FIXME
-     | lval '=' expr              { $$ = new cdk::assignment_node(LINE, $1, $3); }
-     | tREAD                      { $$ = new fir::read_node(LINE); }
+/*      | lval                       { $$ = new cdk::rvalue_node(LINE, $1); }  //FIXME
+     | lval '=' expr              { $$ = new cdk::assignment_node(LINE, $1, $3); }*/     
+     | '@'                        { $$ = new fir::read_node(LINE); }
      ;
 
-lval : tIDENTIFIER                 { $$ = new cdk::variable_node(LINE, $1); }
-     ;
+/* lval : tIDENTIFIER                 { $$ = new cdk::variable_node(LINE, $1); }
+     ; */ // TODO
 
 /* TODO check */
 /* data_type : tTYPE_INT                { $$ = cdk::primitive_type::create(4, cdk::TYPE_INT); }
@@ -117,12 +118,12 @@ lval : tIDENTIFIER                 { $$ = new cdk::variable_node(LINE, $1); }
           ; */
 
 
-leave : tLEAVE ';'                      { $$ = new fir::leave_node(LINE); }
+/* leave : tLEAVE ';'                      { $$ = new fir::leave_node(LINE); }
       | tLEAVE tINTEGER ';'             { $$ = new fir::leave_node(LINE, $2); }
       ;
 
 restart : tRESTART ';'                  { $$ = new fir::restart_node(LINE); }
         | tRESTART tINTEGER ';'         { $$ = new fir::restart_node(LINE, $2); }
-        ;
+        ; */ // TODO
 
 %%
