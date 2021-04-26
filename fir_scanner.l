@@ -1,5 +1,5 @@
 %option c++ prefix="fir_scanner_" outfile="fir_scanner.cpp"
-%option stack noyywrap yylineno 8bit
+%option stack noyywrap yylineno 8bit debug
 %{ 
 // make relevant includes before including the parser's tab file
 #include <string>
@@ -18,6 +18,7 @@
 %%
 
   /* === COMMENTS === */
+                      // { set_debug(true); }
 
 "!!".*                 ; /* ignore comments */
 "(*"[.\n]*"*)"         ; /* ignore comments */
@@ -63,12 +64,12 @@
 
   /* === INTEGERS === */
 
-"0"                    yy_push_state(X_OCTAL_INT);
+"0"[0-7]               { yy_push_state(X_OCTAL_INT); return tINTEGER; } // TODO todo
 
 <X_OCTAL_INT>[0-7]+    { yylval.i = strtoul(yytext, NULL, 8); yy_pop_state(); return tINTEGER; }
 <X_OCTAL_INT>.|\n      std::cerr << "WARNING: line " << lineno() << ": bad octal data!" << std::endl; exit(1);
 
-[0-9]+           yylval.i = strtoul(yytext, NULL, 10); return tINTEGER;
+[0-9]+                  yylval.i = strtoul(yytext, NULL, 10); return tINTEGER;
 
   /* === REALS === */
 
@@ -76,6 +77,9 @@
 
 
 [A-Za-z][A-Za-z0-9_]*  yylval.s = new std::string(yytext); return tIDENTIFIER;
+
+
+    /* === STRINGS === */
 
 \'                     yy_push_state(X_STRING); yylval.s = new std::string("");
 <X_STRING>\~           yy_push_state(X_TILDE);
@@ -96,7 +100,7 @@
 <X_TILDE>.              *yylval.s += *yytext; yy_pop_state();
 
 
-[-()<>=+*/%;{}.?@]     return *yytext;
+[-()<>=+*/%;{}.?!@]    return *yytext;
 
 [ \t\n]+               ; /* ignore whitespace */
 
