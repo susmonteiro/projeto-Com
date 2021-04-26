@@ -2,11 +2,12 @@
 #include "targets/xml_writer.h"
 #include "targets/type_checker.h"
 #include "ast/all.h"  // automatically generated
+#include "fir_parser.tab.h"
 
 static std::string qualifier_name(int qualifier) {
-  if (qualifier == '*')
+  if (qualifier == tPUBLIC)
     return "public";
-  if (qualifier == '?')
+  if (qualifier == tPRIVATE)
     return "private";
   else
     return "unknown qualifier";
