@@ -171,7 +171,10 @@ void fir::xml_writer::do_while_node(fir::while_node * const node, int lvl) {
   node->block()->accept(this, lvl + 4);
   closeTag("block", lvl + 2);
   openTag("finally", lvl + 2);
-  node->finally_block()->accept(this, lvl + 4);
+  if (node->finally_block()) {
+    std::cout << "Finally: " << node->finally_block() << " End" << std::endl;
+    node->finally_block()->accept(this, lvl + 4);
+  }
   closeTag("finally", lvl + 2);
   closeTag(node, lvl);
 }
@@ -241,12 +244,17 @@ void fir::xml_writer::do_return_node(fir::return_node * const node, int lvl) {
 void fir::xml_writer::do_block_node(fir::block_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
   openTag(node, lvl);
+
   openTag("declarations", lvl + 2);
-  node->declarations()->accept(this, lvl + 4);
+  if (node->declarations())
+    node->declarations()->accept(this, lvl + 4);
   closeTag("declarations", lvl + 2);
+
   openTag("instructions", lvl + 2);
+  if (node->instructions())
   node->instructions()->accept(this, lvl + 4);
   closeTag("instructions", lvl + 2);
+  
   closeTag(node, lvl);
 }
 
@@ -281,13 +289,13 @@ void fir::xml_writer::do_function_declaration_node(fir::function_declaration_nod
   os() << std::string(lvl, ' ') << "<" << node->label() << " name='" << node->identifier() << "' qualifier='"
        << qualifier_name(node->qualifier()) << "' type='" << cdk::to_string(node->type()) << "'>" << std::endl;
 
-  openTag("arguments", lvl);
+  openTag("arguments", lvl + 2);
   if (node->arguments()) {
     _symtab.push();
     node->arguments()->accept(this, lvl + 4);
     _symtab.pop();
   }
-  closeTag("arguments", lvl);
+  closeTag("arguments", lvl + 2);
   closeTag(node, lvl);
 }
 
@@ -309,14 +317,22 @@ void fir::xml_writer::do_function_definition_node(fir::function_definition_node 
   os() << std::string(lvl, ' ') << "<" << node->label() << " name='" << node->identifier() << "' qualifier='"
        << qualifier_name(node->qualifier()) << "' type='" << cdk::to_string(node->type()) << "'>" << std::endl;
 
-  openTag("arguments", lvl);
+  openTag("arguments", lvl + 2);
   if (node->arguments()) {
     /* _inFunctionArgs = true; */ // FIXME really needed?
     node->arguments()->accept(this, lvl + 4);
     /* _inFunctionArgs = false; */ // FIXME really needed?
   }
-  closeTag("arguments", lvl);
+  closeTag("arguments", lvl + 2);
+
+  node->prologue()->accept(this, lvl + 2);
   node->block()->accept(this, lvl + 2);
+
+  openTag("epilogue", lvl + 2);
+  if (node->epilogue())
+    node->epilogue()->accept(this, lvl + 2);
+  closeTag("epilogue", lvl + 2);
+
   closeTag(node, lvl);
 
   _symtab.pop(); // scope of args
@@ -369,7 +385,8 @@ void fir::xml_writer::do_stack_alloc_node(fir::stack_alloc_node *const node, int
 void fir::xml_writer::do_prologue_node(fir::prologue_node *const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
   openTag(node, lvl);
-  node->block()->accept(this, lvl + 2);
+  if (node->block())
+    node->block()->accept(this, lvl + 2);
   closeTag(node, lvl);
 }
 
