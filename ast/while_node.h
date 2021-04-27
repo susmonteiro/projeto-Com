@@ -14,10 +14,6 @@ namespace fir {
     cdk::basic_node *_finally_block;
 
   public:
-    inline while_node(int lineno, cdk::expression_node *condition, cdk::basic_node *block) :
-        basic_node(lineno), _condition(condition), _block(block) {
-    }
-
     inline while_node(int lineno, cdk::expression_node *condition, cdk::basic_node *block, cdk::basic_node *finally_block) :
         basic_node(lineno), _condition(condition), _block(block), _finally_block(finally_block) {
     }
