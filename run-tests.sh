@@ -20,4 +20,4 @@ for f in *.fir; do
     rm test_fir
 done
 
-echo "Tests passed $passed/$total"
+echo "Tests passed: $passed/$total"
