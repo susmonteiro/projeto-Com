@@ -18,7 +18,7 @@
 %%
 
   /* === COMMENTS === */
-                      // { set_debug(true); }
+                       /* { yydebug = 1; set_debug(true); } */
 
 "!!".*                 ; /* ignore comments */
 "(*"[.\n]*"*)"         ; /* ignore comments */
@@ -64,10 +64,13 @@
 
   /* === INTEGERS === */
 
-"0"[0-7]               { yy_push_state(X_OCTAL_INT); return tINTEGER; } // TODO todo
+0[0-7]+                     { yylval.i = strtoul(yytext, NULL, 8); return tINTEGER; }
+0[0-9]+                     std::cerr << "WARNING: line " << lineno() << ": bad octal data!" << std::endl; exit(1);
 
-<X_OCTAL_INT>[0-7]+    { yylval.i = strtoul(yytext, NULL, 8); yy_pop_state(); return tINTEGER; }
-<X_OCTAL_INT>.|\n      std::cerr << "WARNING: line " << lineno() << ": bad octal data!" << std::endl; exit(1);
+     /* "0"                    { yy_push_state(X_OCTAL_INT); return tINTEGER; } TODO todo */
+
+     /* <X_OCTAL_INT>[0-7]*    { yylval.i = strtoul(yytext, NULL, 8); yy_pop_state(); return tINTEGER; }
+    <X_OCTAL_INT>.|\n      std::cerr << "WARNING: line " << lineno() << ": bad octal data!" << std::endl; exit(1); */
 
 [0-9]+                  yylval.i = strtoul(yytext, NULL, 10); return tINTEGER;
 
@@ -100,7 +103,7 @@
 <X_TILDE>.              *yylval.s += *yytext; yy_pop_state();
 
 
-[-()<>=+*/%;{}.?!@]    return *yytext;
+[-()<>=+*/%;{}.,?!@]    return *yytext;
 
 [ \t\n]+               ; /* ignore whitespace */
 
