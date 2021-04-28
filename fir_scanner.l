@@ -15,13 +15,18 @@
 %x X_TILDE
 %x X_STRING
 %x X_OCTAL_INT
+%x X_COMMENT
 %%
 
   /* === COMMENTS === */
                        /* { yydebug = 1; set_debug(true); } */
 
 "!!".*                 ; /* ignore comments */
-"(*"[.\n]*"*)"         ; /* ignore comments */
+    /* "(*"[.\n]*"*)"         ;  */
+
+"(*"                   yy_push_state(X_COMMENT);
+<X_COMMENT>"*)"        yy_pop_state();
+<X_COMMENT>.|"\n"      ;  
 
   /* === DATA TYPES === */
 
@@ -103,7 +108,7 @@
 <X_TILDE>.              *yylval.s += *yytext; yy_pop_state();
 
 
-[-()<>=+*/%;{}.,?!@]    return *yytext;
+[-()<>=+*/%;{}\[\].,?!@]    return *yytext;
 
 [ \t\n]+               ; /* ignore whitespace */
 
