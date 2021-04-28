@@ -10,8 +10,7 @@ passed=0
 cd tests
 for f in *.fir; do
     total=$(($total+1))
-    ../fir $f --target xml && (echo "$f ${GREEN}passed${NC}") || (echo "$f ${RED}compilation error${NC}"; continue)
-    passed=$(($passed+1))
+    ../fir $f --target xml && (echo "$f ${GREEN}passed${NC}") && passed=$(($passed+1)) || (echo "$f ${RED}compilation error${NC}"; continue)
 done
 
 echo "Tests passed: $passed/$total"
