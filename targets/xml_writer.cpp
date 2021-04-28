@@ -16,30 +16,34 @@ static std::string qualifier_name(int qualifier) {
 //---------------------------------------------------------------------------
 
 void fir::xml_writer::do_nil_node(cdk::nil_node * const node, int lvl) {
-  // EMPTY
+  openTag(node, lvl);
+  closeTag(node, lvl);
 }
 void fir::xml_writer::do_data_node(cdk::data_node * const node, int lvl) {
   // EMPTY
 }
 void fir::xml_writer::do_double_node(cdk::double_node * const node, int lvl) {
-  // EMPTY
+  process_literal(node, lvl);
 }
 void fir::xml_writer::do_not_node(cdk::not_node * const node, int lvl) {
-  // EMPTY
+  do_unary_operation(node, lvl);
 }
 void fir::xml_writer::do_and_node(cdk::and_node * const node, int lvl) {
-  // EMPTY
+  do_binary_operation(node, lvl);
 }
 void fir::xml_writer::do_or_node(cdk::or_node * const node, int lvl) {
-  // EMPTY
+  do_binary_operation(node, lvl);
 }
 
 //---------------------------------------------------------------------------
 
 void fir::xml_writer::do_sequence_node(cdk::sequence_node * const node, int lvl) {
   os() << std::string(lvl, ' ') << "<sequence_node size='" << node->size() << "'>" << std::endl;
-  for (size_t i = 0; i < node->size(); i++)
+  std::cout << "Inside sequence" << std::endl;
+  for (size_t i = 0; i < node->size(); i++) {
+    std::cout << "Inside sequence for" << node->size() << std::endl;
     node->node(i)->accept(this, lvl + 2);
+  }
   closeTag(node, lvl);
 }
 
@@ -114,11 +118,13 @@ void fir::xml_writer::do_eq_node(cdk::eq_node * const node, int lvl) {
 
 void fir::xml_writer::do_variable_node(cdk::variable_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
+  std::cout << "Inside assignment" << std::endl;
   os() << std::string(lvl, ' ') << "<" << node->label() << ">" << node->name() << "</" << node->label() << ">" << std::endl;
 }
 
 void fir::xml_writer::do_rvalue_node(cdk::rvalue_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
+  std::cout << "Inside rvalue" << std::endl;
   openTag(node, lvl);
   node->lvalue()->accept(this, lvl + 4);
   closeTag(node, lvl);
@@ -126,8 +132,8 @@ void fir::xml_writer::do_rvalue_node(cdk::rvalue_node * const node, int lvl) {
 
 void fir::xml_writer::do_assignment_node(cdk::assignment_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
+  std::cout << "Inside assignment" << std::endl;
   openTag(node, lvl);
-
   node->lvalue()->accept(this, lvl);
   reset_new_symbol();
 
@@ -139,12 +145,14 @@ void fir::xml_writer::do_assignment_node(cdk::assignment_node * const node, int 
 
 void fir::xml_writer::do_evaluation_node(fir::evaluation_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
+  std::cout << "Inside evaluation" << std::endl;
   openTag(node, lvl);
   node->argument()->accept(this, lvl + 2);
   closeTag(node, lvl);
 }
 
-void fir::xml_writer::do_print_node(fir::print_node * const node, int lvl) {
+void fir::xml_writer::do_print_node(fir::print_node *const node, int lvl) {
+  std::cout << "Inside write" << std::endl;
   ASSERT_SAFE_EXPRESSIONS;
   openTag(node, lvl);
   node->arguments()->accept(this, lvl + 2);
@@ -252,7 +260,8 @@ void fir::xml_writer::do_block_node(fir::block_node * const node, int lvl) {
 
   openTag("instructions", lvl + 2);
   if (node->instructions())
-  node->instructions()->accept(this, lvl + 4);
+    std::cout << "Inside instructions" << std::endl;
+    node->instructions()->accept(this, lvl + 4);
   closeTag("instructions", lvl + 2);
   
   closeTag(node, lvl);
@@ -262,6 +271,7 @@ void fir::xml_writer::do_block_node(fir::block_node * const node, int lvl) {
 
 void fir::xml_writer::do_variable_declaration_node(fir::variable_declaration_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
+  std::cout << "Inside variable declaration" << std::endl;
   reset_new_symbol();
 
   os() << std::string(lvl, ' ') << "<" << node->label() << " name='" << node->identifier() << "' qualifier='"
@@ -282,7 +292,7 @@ void fir::xml_writer::do_function_declaration_node(fir::function_declaration_nod
     error(node->lineno(), "cannot declare function in body or in args");
     return;
   } */ // TODO
-
+  std::cout << "Inside function declaration" << std::endl;
   ASSERT_SAFE_EXPRESSIONS;
   reset_new_symbol();
 
@@ -306,6 +316,7 @@ void fir::xml_writer::do_function_definition_node(fir::function_definition_node 
   } */ // TODO
 
   ASSERT_SAFE_EXPRESSIONS;
+  std::cout << "Inside function definition" << std::endl;
 
   // remember symbol so that args and body know
   /* _function = new_symbol(); */ // TODO
@@ -325,13 +336,20 @@ void fir::xml_writer::do_function_definition_node(fir::function_definition_node 
   }
   closeTag("arguments", lvl + 2);
 
-  node->prologue()->accept(this, lvl + 2);
-  node->block()->accept(this, lvl + 2);
+  if (node->prologue()) {
+    node->prologue()->accept(this, lvl + 2);
+  }
 
-  openTag("epilogue", lvl + 2);
-  if (node->epilogue())
+  if (node->block()) {
+    node->block()->accept(this, lvl + 2);
+  }
+
+  
+  if (node->epilogue()) {
+    openTag("epilogue", lvl + 2);
     node->epilogue()->accept(this, lvl + 2);
-  closeTag("epilogue", lvl + 2);
+    closeTag("epilogue", lvl + 2);
+  }
 
   closeTag(node, lvl);
 
@@ -341,6 +359,7 @@ void fir::xml_writer::do_function_definition_node(fir::function_definition_node 
 
 void fir::xml_writer::do_function_call_node(fir::function_call_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
+  std::cout << "Inside function call" << std::endl;
   os() << std::string(lvl, ' ') << "<" << node->label() << " name='"
        << node->identifier() << "'>" << std::endl;
   openTag("arguments", lvl);
@@ -352,12 +371,14 @@ void fir::xml_writer::do_function_call_node(fir::function_call_node * const node
 
 void fir::xml_writer::do_null_node(fir::null_node *const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
+  std::cout << "Inside null node" << std::endl;
   openTag(node, lvl);
   closeTag(node, lvl);
 }
 
 void fir::xml_writer::do_address_of_node(fir::address_of_node *const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
+  std::cout << "Inside address of node" << std::endl;
   openTag(node, lvl);
   node->lvalue()->accept(this, lvl + 2);
   closeTag(node, lvl);
@@ -365,6 +386,7 @@ void fir::xml_writer::do_address_of_node(fir::address_of_node *const node, int l
 
 void fir::xml_writer::do_index_node(fir::index_node *const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
+  std::cout << "Inside index of node" << std::endl;
   openTag(node, lvl);
   openTag("base", lvl);
   node->base()->accept(this, lvl + 2);
@@ -377,6 +399,7 @@ void fir::xml_writer::do_index_node(fir::index_node *const node, int lvl) {
 
 void fir::xml_writer::do_stack_alloc_node(fir::stack_alloc_node *const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
+  std::cout << "Inside stack alloc" << std::endl;
   openTag(node, lvl);
   node->argument()->accept(this, lvl + 2);
   closeTag(node, lvl);
@@ -392,6 +415,7 @@ void fir::xml_writer::do_prologue_node(fir::prologue_node *const node, int lvl) 
 
 void fir::xml_writer::do_identity_node(fir::identity_node *const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
+  std::cout << "Inside indentity" << std::endl;
   openTag(node, lvl);
   node->argument()->accept(this, lvl + 2);
   closeTag(node, lvl);
