@@ -64,6 +64,9 @@
 %nonassoc tIFX
 %nonassoc tELSE
 
+%nonassoc tWHILEX
+%nonassoc tFINALLY
+
 %right '='
 %left tOR
 %left tAND
@@ -189,7 +192,7 @@ void_type      : tTYPE_VOID                 { $$ = cdk::primitive_type::create(0
 instruction    : expr ';'                                         { $$ = new fir::evaluation_node(LINE, $1); }
                | tIF expr tTHEN instruction %prec tIFX            { $$ = new fir::if_node(LINE, $2, $4); }
                | tIF expr tTHEN instruction tELSE instruction     { $$ = new fir::if_else_node(LINE, $2, $4, $6); }
-               | tWHILE expr tDO instruction                      { $$ = new fir::while_node(LINE, $2, $4, nullptr); } // TODO %prec?
+               | tWHILE expr tDO instruction %prec tWHILEX        { $$ = new fir::while_node(LINE, $2, $4, nullptr); } // TODO %prec?
                | tWHILE expr tDO instruction tFINALLY instruction { $$ = new fir::while_node(LINE, $2, $4, $6); } 
                | tWRITE exprs ';'                                 { $$ = new fir::print_node(LINE, $2, false); }
                | tWRITELN exprs ';'                               { $$ = new fir::print_node(LINE, $2, true); }
