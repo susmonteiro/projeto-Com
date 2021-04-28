@@ -59,7 +59,7 @@
 %type<type> data_type void_type
 %type <lvalue> lvalue
 %type <prologue> prologue
-%type <block> block epilogue
+%type <block> block epilogue body
 
 %nonassoc tIFX
 %nonassoc tELSE
@@ -116,12 +116,12 @@ fundec         : data_type     tIDENTIFIER '(' argdecs ')' { $$ = new fir::funct
                | void_type '?' tIDENTIFIER '(' argdecs ')' { $$ = new fir::function_declaration_node(LINE, *$3, tEXTERN, $1, $5); }
                ;
 
-fundef         : data_type     tIDENTIFIER '(' argdecs ')' default_value prologue block epilogue { $$ = new fir::function_definition_node(LINE, *$2, tPRIVATE, $1, $4, $6, $7, $8, $9); }
-               | data_type '*' tIDENTIFIER '(' argdecs ')' default_value prologue block epilogue { $$ = new fir::function_definition_node(LINE, *$3, tPUBLIC,  $1, $5, $7, $8, $9, $10); }
-               | data_type '?' tIDENTIFIER '(' argdecs ')' default_value prologue block epilogue { $$ = new fir::function_definition_node(LINE, *$3, tEXTERN,  $1, $5, $7, $8, $9, $10); }
-               | void_type     tIDENTIFIER '(' argdecs ')' default_value prologue block epilogue { $$ = new fir::function_definition_node(LINE, *$2, tPRIVATE, $1, $4, $6, $7, $8, $9); }
-               | void_type '*' tIDENTIFIER '(' argdecs ')' default_value prologue block epilogue { $$ = new fir::function_definition_node(LINE, *$3, tPUBLIC,  $1, $5, $7, $8, $9, $10); }
-               | void_type '?' tIDENTIFIER '(' argdecs ')' default_value prologue block epilogue { $$ = new fir::function_definition_node(LINE, *$3, tEXTERN,  $1, $5, $7, $8, $9, $10); }
+fundef         : data_type     tIDENTIFIER '(' argdecs ')' default_value prologue body epilogue { $$ = new fir::function_definition_node(LINE, *$2, tPRIVATE, $1, $4, $6, $7, $8, $9); }
+               | data_type '*' tIDENTIFIER '(' argdecs ')' default_value prologue body epilogue { $$ = new fir::function_definition_node(LINE, *$3, tPUBLIC,  $1, $5, $7, $8, $9, $10); }
+               | data_type '?' tIDENTIFIER '(' argdecs ')' default_value prologue body epilogue { $$ = new fir::function_definition_node(LINE, *$3, tEXTERN,  $1, $5, $7, $8, $9, $10); }
+               | void_type     tIDENTIFIER '(' argdecs ')' default_value prologue body epilogue { $$ = new fir::function_definition_node(LINE, *$2, tPRIVATE, $1, $4, $6, $7, $8, $9); }
+               | void_type '*' tIDENTIFIER '(' argdecs ')' default_value prologue body epilogue { $$ = new fir::function_definition_node(LINE, *$3, tPUBLIC,  $1, $5, $7, $8, $9, $10); }
+               | void_type '?' tIDENTIFIER '(' argdecs ')' default_value prologue body epilogue { $$ = new fir::function_definition_node(LINE, *$3, tEXTERN,  $1, $5, $7, $8, $9, $10); }
                ;
 
 
@@ -141,7 +141,7 @@ default_value  : /* empty */                      { $$ = nullptr; }
                | tDEFAULT_VALUE tNULL             { $$ = new fir::null_node(LINE); }
                ;
 
-prologue       : /* empty */                      { $$ = new fir::prologue_node(LINE, nullptr); }
+prologue       : /* empty */                      { $$ = nullptr; }
                | '@' block                        { $$ = new fir::prologue_node(LINE, $2); }
                ;
 
@@ -149,6 +149,8 @@ epilogue       : /* empty */                      { $$ = nullptr; }
                | tEPILOGUE block                  { $$ = $2; }
                ;
 
+body           : /* empty */                        { $$ = nullptr; }
+               | block                              { $$ = $1; }
 
 block          : '{' opt_vardecs opt_instructions '}'       { $$ = new fir::block_node(LINE, $2, $3); }
                ;
@@ -191,7 +193,7 @@ instruction    : expr ';'                                         { $$ = new fir
                | tWHILE expr tDO instruction tFINALLY instruction { $$ = new fir::while_node(LINE, $2, $4, $6); } 
                | tWRITE exprs ';'                                 { $$ = new fir::print_node(LINE, $2, false); }
                | tWRITELN exprs ';'                               { $$ = new fir::print_node(LINE, $2, true); }
-               | tRETURN ';'                                      { $$ = new fir::return_node(LINE); }
+               | tRETURN                                          { $$ = new fir::return_node(LINE); }
                | leave                                            { $$ = $1; }
                | restart                                          { $$ = $1; }
                | block                                            { $$ = $1; }
