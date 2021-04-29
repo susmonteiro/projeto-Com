@@ -7,7 +7,7 @@ NC='\033[0m'
 total=0
 passed=0
 
-make
+make || exit 1
 
 cd tests
 for f in *.fir; do
@@ -20,7 +20,7 @@ for f in *.fir; do
         echo "$f ${RED}compilation error${NC}"
     fi
 
-    rm "${f%.*}.xml"
+    # rm "${f%.*}.xml"
 done
 
 echo "Tests passed: $passed/$total"

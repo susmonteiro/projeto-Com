@@ -3,6 +3,8 @@
 total=0
 passed=0
 
+make || exit 1
+
 cd tests
 for f in *.fir; do
     total=$(($total+1))
