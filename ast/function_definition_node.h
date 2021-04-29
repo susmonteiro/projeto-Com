@@ -29,6 +29,15 @@ namespace fir {
       type(functionType);
     }
 
+    function_definition_node(int lineno, const std::string &identifier, int qualifier, std::shared_ptr<cdk::basic_type> functionType,
+                              cdk::sequence_node *arguments,
+                              fir::prologue_node *prologue, fir::block_node *block, fir::block_node *epilogue) :
+        cdk::typed_node(lineno), _identifier(identifier), _qualifier(qualifier), _arguments(arguments), 
+        _prologue(prologue), _block(block), _epilogue(epilogue) {
+      type(functionType);
+      _return_value = (functionType->name() == cdk::TYPE_INT) ? (new cdk::integer_node(lineno, 0)) : nullptr;
+    }
+
   public:
     const std::string& identifier() const {
       return _identifier;

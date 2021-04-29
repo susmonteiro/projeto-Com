@@ -128,8 +128,10 @@ fundec         : data_type     tIDENTIFIER '(' argdecs ')' { $$ = new fir::funct
 
 fundef         : data_type     tIDENTIFIER '(' argdecs ')' default_value prologue body epilogue { $$ = new fir::function_definition_node(LINE, *$2, tPRIVATE, $1, $4, $6, $7, $8, $9);  delete $2; }
                | data_type '*' tIDENTIFIER '(' argdecs ')' default_value prologue body epilogue { $$ = new fir::function_definition_node(LINE, *$3, tPUBLIC,  $1, $5, $7, $8, $9, $10); delete $3; }
-               | void_type     tIDENTIFIER '(' argdecs ')' default_value prologue body epilogue { $$ = new fir::function_definition_node(LINE, *$2, tPRIVATE, $1, $4, $6, $7, $8, $9);  delete $2; }
-               | void_type '*' tIDENTIFIER '(' argdecs ')' default_value prologue body epilogue { $$ = new fir::function_definition_node(LINE, *$3, tPUBLIC,  $1, $5, $7, $8, $9, $10); delete $3; }
+               | data_type     tIDENTIFIER '(' argdecs ')' prologue body epilogue { $$ = new fir::function_definition_node(LINE, *$2, tPRIVATE, $1, $4, $6, $7, $8);  delete $2; }
+               | data_type '*' tIDENTIFIER '(' argdecs ')' prologue body epilogue { $$ = new fir::function_definition_node(LINE, *$3, tPUBLIC,  $1, $5, $7, $8, $9); delete $3; }
+               | void_type     tIDENTIFIER '(' argdecs ')' prologue body epilogue { $$ = new fir::function_definition_node(LINE, *$2, tPRIVATE, $1, $4, $6, $7, $8);  delete $2; }
+               | void_type '*' tIDENTIFIER '(' argdecs ')' prologue body epilogue { $$ = new fir::function_definition_node(LINE, *$3, tPUBLIC,  $1, $5, $7, $8, $9); delete $3; }
                ;
 
   /* function components */
@@ -143,8 +145,7 @@ argdec         : data_type tIDENTIFIER { $$ = new fir::variable_declaration_node
                ;
 
 
-default_value  : /* empty */                      { $$ = nullptr; }
-               | tDEFAULT_VALUE integer           { $$ = $2; }
+default_value  : tDEFAULT_VALUE integer           { $$ = $2; }
                | tDEFAULT_VALUE float             { $$ = $2; }
                | tDEFAULT_VALUE string            { $$ = new cdk::string_node(LINE, $2); }
                | tDEFAULT_VALUE tNULL             { $$ = new fir::null_node(LINE); }
