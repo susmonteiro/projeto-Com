@@ -83,7 +83,8 @@
 %}
 %%
 
-file           : declarations { compiler->ast($$ = $1); } 
+file           : /* empty */  { compiler->ast($$ = new cdk::sequence_node(LINE)); }
+               | declarations { compiler->ast($$ = $1); }
                ;
 
 declarations   :              declaration { $$ = new cdk::sequence_node(LINE, $1);     }
