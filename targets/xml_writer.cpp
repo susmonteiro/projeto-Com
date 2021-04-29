@@ -9,6 +9,8 @@ static std::string qualifier_name(int qualifier) {
     return "public";
   if (qualifier == tPRIVATE)
     return "private";
+  if (qualifier == tEXTERN)
+    return "extern";
   else
     return "unknown qualifier";
 }
@@ -126,7 +128,7 @@ void fir::xml_writer::do_rvalue_node(cdk::rvalue_node * const node, int lvl) {
   /* ASSERT_SAFE_EXPRESSIONS; */
   /* std::cout << "Inside rvalue" << std::endl; */ // TODO erase me
   openTag(node, lvl);
-  node->lvalue()->accept(this, lvl + 4);
+  node->lvalue()->accept(this, lvl + 2);
   closeTag(node, lvl);
 }
 
@@ -134,10 +136,10 @@ void fir::xml_writer::do_assignment_node(cdk::assignment_node * const node, int 
   /* ASSERT_SAFE_EXPRESSIONS; */
   /* std::cout << "Inside assignment" << std::endl; */ // TODO erase me
   openTag(node, lvl);
-  node->lvalue()->accept(this, lvl);
+  node->lvalue()->accept(this, lvl + 2);
   reset_new_symbol();
 
-  node->rvalue()->accept(this, lvl + 4);
+  node->rvalue()->accept(this, lvl + 2);
   closeTag(node, lvl);
 }
 
@@ -178,12 +180,12 @@ void fir::xml_writer::do_while_node(fir::while_node * const node, int lvl) {
   openTag("block", lvl + 2);
   node->block()->accept(this, lvl + 4);
   closeTag("block", lvl + 2);
-  openTag("finally", lvl + 2);
   if (node->finally_block()) {
+    openTag("finally", lvl + 2);
     /* std::cout << "Finally: " << node->finally_block() << " End" << std::endl; */ // TODO erase me
     node->finally_block()->accept(this, lvl + 4);
+    closeTag("finally", lvl + 2);
   }
-  closeTag("finally", lvl + 2);
   closeTag(node, lvl);
 }
 
@@ -278,9 +280,9 @@ void fir::xml_writer::do_variable_declaration_node(fir::variable_declaration_nod
        << qualifier_name(node->qualifier()) << "' type='" << cdk::to_string(node->type()) << "'>" << std::endl;
 
   if (node->initializer()) {
-    openTag("initializer", lvl);
+    openTag("initializer", lvl + 2);
     node->initializer()->accept(this, lvl + 4);
-    closeTag("initializer", lvl);
+    closeTag("initializer", lvl + 2);
   }
   closeTag(node, lvl);
 }
@@ -336,6 +338,12 @@ void fir::xml_writer::do_function_definition_node(fir::function_definition_node 
   }
   closeTag("arguments", lvl + 2);
 
+  openTag("default_value", lvl + 2);
+  if (node->return_value()) {
+    node->return_value()->accept(this, lvl + 4);
+  }
+  closeTag("default_value", lvl + 2);
+
   if (node->prologue()) {
     node->prologue()->accept(this, lvl + 2);
   }
@@ -362,10 +370,10 @@ void fir::xml_writer::do_function_call_node(fir::function_call_node * const node
   /* std::cout << "Inside function call" << std::endl; */ // TODO erase me
   os() << std::string(lvl, ' ') << "<" << node->label() << " name='"
        << node->identifier() << "'>" << std::endl;
-  openTag("arguments", lvl);
+  openTag("arguments", lvl + 2);
   if (node->arguments())
     node->arguments()->accept(this, lvl + 4);
-  closeTag("arguments", lvl);
+  closeTag("arguments", lvl + 2);
   closeTag(node, lvl);
 }
 
@@ -388,12 +396,12 @@ void fir::xml_writer::do_index_node(fir::index_node *const node, int lvl) {
   /* ASSERT_SAFE_EXPRESSIONS; */
   /* std::cout << "Inside index of node" << std::endl; */ // TODO erase me
   openTag(node, lvl);
-  openTag("base", lvl);
-  node->base()->accept(this, lvl + 2);
-  closeTag("base", lvl);
-  openTag("index", lvl);
-  node->index()->accept(this, lvl + 2);
-  closeTag("index", lvl);
+  openTag("base", lvl + 2);
+  node->base()->accept(this, lvl + 4);
+  closeTag("base", lvl + 2);
+  openTag("index", lvl + 2);
+  node->index()->accept(this, lvl + 4);
+  closeTag("index", lvl + 2);
   closeTag(node, lvl);
 }
 

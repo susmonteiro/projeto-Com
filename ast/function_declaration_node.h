@@ -31,6 +31,10 @@ namespace fir {
       return _qualifier;
     }
 
+    cdk::typed_node* argument(size_t ax) {
+      return dynamic_cast<cdk::typed_node*>(_arguments->node(ax));
+    }
+
     cdk::sequence_node* arguments() {
       return _arguments;
     }
