@@ -69,15 +69,23 @@
 
   /* === INTEGERS === */
 
-0[0-7]+                     { yylval.i = strtoul(yytext, NULL, 8); return tINTEGER; }
-0[0-9]+                     std::cerr << "WARNING: line " << lineno() << ": bad octal data!" << std::endl; exit(1);
+0[0-7]+                {
+                         try {
+                           yylval.i = strtoul(yytext, NULL, 8); return tINTEGER;
+                         } catch (std::out_of_range& e) {
+                           yyerror("Integer out of range.");
+                         }
+                       }
+0[0-9]+                std::cerr << "WARNING: line " << lineno() << ": bad octal data!" << std::endl; exit(1);
 
-     /* "0"                    { yy_push_state(X_OCTAL_INT); return tINTEGER; } TODO todo */
 
-     /* <X_OCTAL_INT>[0-7]*    { yylval.i = strtoul(yytext, NULL, 8); yy_pop_state(); return tINTEGER; }
-    <X_OCTAL_INT>.|\n      std::cerr << "WARNING: line " << lineno() << ": bad octal data!" << std::endl; exit(1); */
-
-[0-9]+                  yylval.i = strtoul(yytext, NULL, 10); return tINTEGER;
+[0-9]+                 {
+                         try {
+                           yylval.i = strtoul(yytext, NULL, 10); return tINTEGER;
+                         } catch (std::out_of_range& e) {
+                           yyerror("Integer out of range.");
+                         }
+                       }
 
   /* === REALS === */
 
