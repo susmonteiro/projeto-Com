@@ -74,7 +74,7 @@
 %left tGE tLE tEQ tNE '>' '<'
 %left '+' '-'
 %left '*' '/' '%'
-%nonassoc tUNARY
+%nonassoc tUNARY tFUNDEC
 
 %{
 //-- The rules below will be included in yyparse, the main parsing function.
@@ -111,12 +111,12 @@ opt_init       : /* empty */         { $$ = nullptr; }
                ;
              
 
-fundec         : data_type     tIDENTIFIER '(' argdecs ')' { $$ = new fir::function_declaration_node(LINE, *$2, tPRIVATE, $1, $4); }
-               | data_type '*' tIDENTIFIER '(' argdecs ')' { $$ = new fir::function_declaration_node(LINE, *$3, tPUBLIC, $1, $5); }
-               | data_type '?' tIDENTIFIER '(' argdecs ')' { $$ = new fir::function_declaration_node(LINE, *$3, tEXTERN, $1, $5); }
-               | void_type     tIDENTIFIER '(' argdecs ')' { $$ = new fir::function_declaration_node(LINE, *$2, tPRIVATE, $1, $4); }
-               | void_type '*' tIDENTIFIER '(' argdecs ')' { $$ = new fir::function_declaration_node(LINE, *$3, tPUBLIC, $1, $5); }
-               | void_type '?' tIDENTIFIER '(' argdecs ')' { $$ = new fir::function_declaration_node(LINE, *$3, tEXTERN, $1, $5); }
+fundec         : data_type     tIDENTIFIER '(' argdecs ')' tFUNDEC { $$ = new fir::function_declaration_node(LINE, *$2, tPRIVATE, $1, $4); }
+               | data_type '*' tIDENTIFIER '(' argdecs ')' tFUNDEC { $$ = new fir::function_declaration_node(LINE, *$3, tPUBLIC, $1, $5); }
+               | data_type '?' tIDENTIFIER '(' argdecs ')' tFUNDEC { $$ = new fir::function_declaration_node(LINE, *$3, tEXTERN, $1, $5); }
+               | void_type     tIDENTIFIER '(' argdecs ')' tFUNDEC { $$ = new fir::function_declaration_node(LINE, *$2, tPRIVATE, $1, $4); }
+               | void_type '*' tIDENTIFIER '(' argdecs ')' tFUNDEC { $$ = new fir::function_declaration_node(LINE, *$3, tPUBLIC, $1, $5); }
+               | void_type '?' tIDENTIFIER '(' argdecs ')' tFUNDEC { $$ = new fir::function_declaration_node(LINE, *$3, tEXTERN, $1, $5); }
                ;
 
 fundef         : data_type     tIDENTIFIER '(' argdecs ')' default_value prologue body epilogue { $$ = new fir::function_definition_node(LINE, *$2, tPRIVATE, $1, $4, $6, $7, $8, $9); }
