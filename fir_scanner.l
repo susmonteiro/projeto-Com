@@ -89,8 +89,13 @@
 
   /* === REALS === */
 
-([0-9]*\.[0-9]+|[0-9]+\.[0-9]*)([eE][-+]?[0-9]+)? { yylval.d = strtod(yytext, NULL); return tREAL; }
-
+([0-9]*\.[0-9]+|[0-9]+\.[0-9]*)([eE][-+]?[0-9]+)? {
+                                                    try {
+                                                      yylval.d = strtod(yytext, NULL); return tREAL;
+                                                    } catch (std::out_of_range& e) {
+                                                      yyerror("Float out of range.");
+                                                    }
+                                                  }
 
 [A-Za-z][A-Za-z0-9_]*  yylval.s = new std::string(yytext); return tIDENTIFIER;
 
