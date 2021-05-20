@@ -63,11 +63,11 @@
 
   /* %nonassoc tFUNDEC */
 
-%nonassoc tIFX
-%nonassoc tELSE
-
 %nonassoc tWHILEX
 %nonassoc tFINALLY
+
+%nonassoc tIFX
+%nonassoc tELSE
 
 %right '='
 %left tOR

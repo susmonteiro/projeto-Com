@@ -8,7 +8,8 @@
 //---------------------------------------------------------------------------
 
 void fir::type_checker::do_sequence_node(cdk::sequence_node *const node, int lvl) {
-  // EMPTY
+  for (size_t i = 0; i < node->size(); i++)
+    node->node(i)->accept(this, lvl);
 }
 
 //---------------------------------------------------------------------------
@@ -20,16 +21,17 @@ void fir::type_checker::do_data_node(cdk::data_node *const node, int lvl) {
   // EMPTY
 }
 void fir::type_checker::do_double_node(cdk::double_node *const node, int lvl) {
-  // EMPTY
+  ASSERT_UNSPEC;
+  node->type(cdk::primitive_type::create(8, cdk::TYPE_DOUBLE)); 
 }
 void fir::type_checker::do_not_node(cdk::not_node *const node, int lvl) {
-  // EMPTY
+  // TODO
 }
 void fir::type_checker::do_and_node(cdk::and_node *const node, int lvl) {
-  // EMPTY
+  // TODO
 }
 void fir::type_checker::do_or_node(cdk::or_node *const node, int lvl) {
-  // EMPTY
+  // TODO
 }
 
 //---------------------------------------------------------------------------
@@ -52,6 +54,7 @@ void fir::type_checker::processUnaryExpression(cdk::unary_operation_node *const 
 
   // in Simple, expressions are always int
   node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
+  // TODO
 }
 
 void fir::type_checker::do_neg_node(cdk::neg_node *const node, int lvl) {
@@ -70,6 +73,7 @@ void fir::type_checker::processBinaryExpression(cdk::binary_operation_node *cons
 
   // in Simple, expressions are always int
   node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
+  // TODO
 }
 
 void fir::type_checker::do_add_node(cdk::add_node *const node, int lvl) {
@@ -149,6 +153,7 @@ void fir::type_checker::do_assignment_node(cdk::assignment_node *const node, int
 
   // in Simple, expressions are always int
   node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
+  // TODO
 }
 
 //---------------------------------------------------------------------------

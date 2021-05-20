@@ -20,7 +20,7 @@
   /* === COMMENTS === */
                        /* { yydebug = 1; set_debug(true); } */
 
-"!!".*                 ; /* ignore comments */
+"!!".*                 ;
 "(*"(.|\n)*"*)"        ; 
 
   /* === DATA TYPES === */
