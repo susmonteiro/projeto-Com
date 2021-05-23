@@ -14,11 +14,13 @@ void fir::postfix_writer::do_nil_node(cdk::nil_node * const node, int lvl) {
 void fir::postfix_writer::do_data_node(cdk::data_node * const node, int lvl) {
   // EMPTY
 }
-void fir::postfix_writer::do_double_node(cdk::double_node * const node, int lvl) {
-  // EMPTY
-}
+
 void fir::postfix_writer::do_not_node(cdk::not_node * const node, int lvl) {
-  // EMPTY
+  ASSERT_SAFE_EXPRESSIONS;
+  node->argument()->accept(this, lvl + 2);
+  _pf.INT(0);
+  _pf.EQ();
+  //_pf.NOT(); TODO why commented?
 }
 void fir::postfix_writer::do_and_node(cdk::and_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
@@ -34,7 +36,16 @@ void fir::postfix_writer::do_and_node(cdk::and_node * const node, int lvl) {
 }
 
 void fir::postfix_writer::do_or_node(cdk::or_node * const node, int lvl) {
-  // EMPTY
+  ASSERT_SAFE_EXPRESSIONS;
+
+  int lbl = ++_lbl;
+  node->left()->accept(this, lvl + 2);
+  _pf.DUP32();
+  _pf.JNZ(mklbl(lbl));
+  node->right()->accept(this, lvl + 2);
+  _pf.OR();
+  _pf.ALIGN();
+  _pf.LABEL(mklbl(lbl));
 }
 
 //---------------------------------------------------------------------------
@@ -48,7 +59,19 @@ void fir::postfix_writer::do_sequence_node(cdk::sequence_node * const node, int 
 //---------------------------------------------------------------------------
 
 void fir::postfix_writer::do_integer_node(cdk::integer_node * const node, int lvl) {
-  _pf.INT(node->value()); // push an integer
+  if (_inFunctionBody) {
+    _pf.INT(node->value());
+  } else {
+    _pf.SINT(node->value());
+  }
+}
+
+void fir::postfix_writer::do_double_node(cdk::double_node * const node, int lvl) {
+  if (_inFunctionBody) {
+    _pf.DOUBLE(node->value());
+  } else {
+    _pf.SDOUBLE(node->value());
+  }
 }
 
 void fir::postfix_writer::do_string_node(cdk::string_node * const node, int lvl) {
@@ -60,9 +83,13 @@ void fir::postfix_writer::do_string_node(cdk::string_node * const node, int lvl)
   _pf.LABEL(mklbl(lbl1 = ++_lbl)); // give the string a name
   _pf.SSTRING(node->value()); // output string characters
 
-  /* leave the address on the stack */
-  _pf.TEXT(); // return to the TEXT segment
-  _pf.ADDR(mklbl(lbl1)); // the string to be printed
+  if (_function) {
+    _pf.TEXT();
+    _pf.ADDR(mklbl(lbl1));
+  } else {
+    _pf.DATA();
+    _pf.SADDR(mklbl(lbl1));
+  }
 }
 
 //---------------------------------------------------------------------------
