@@ -22,6 +22,10 @@ namespace fir {
       return _arguments;
     }
 
+    bool newline() {
+      return _newline;
+    }
+
     void accept(basic_ast_visitor *sp, int level) {
       sp->do_print_node(this, level);
     }

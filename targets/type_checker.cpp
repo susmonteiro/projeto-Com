@@ -2,6 +2,8 @@
 #include "targets/type_checker.h"
 #include "ast/all.h"  // automatically generated
 #include <cdk/types/primitive_type.h>
+#include "fir_parser.tab.h"
+
 
 #define ASSERT_UNSPEC { if (node->type() != nullptr && !node->is_typed(cdk::TYPE_UNSPEC)) return; }
 
@@ -218,7 +220,7 @@ void fir::type_checker::do_return_node(fir::return_node *const node, int lvl) {
 
 
 void fir::type_checker::do_block_node(fir::block_node *const node, int lvl) {
-  // TODO
+  // EMPTY
 }
 
 //---------------------------------------------------------------------------
@@ -234,7 +236,43 @@ void fir::type_checker::do_function_declaration_node(fir::function_declaration_n
 }
 
 void fir::type_checker::do_function_definition_node(fir::function_definition_node *const node, int lvl) {
-  // TODO
+  std::string id;
+
+  // "fix" naming issues...
+  if (node->identifier() == "fir")
+    id = "_main";
+  else if (node->identifier() == "_main")
+    id = "._main";
+  else
+    id = node->identifier();
+
+  _inBlockReturnType = nullptr;
+
+  auto function = fir::make_symbol(node->qualifier(), node->type(), id, true);
+
+  if (node->arguments()) {
+    std::vector <std::shared_ptr<cdk::basic_type>> argtypes;
+    for (size_t ax = 0; ax < node->arguments()->size(); ax++)
+      argtypes.push_back(node->argument(ax)->type());
+    function->set_argument_types(argtypes);
+  }
+
+  std::shared_ptr<fir::symbol> previous = _symtab.find(function->name());
+  if (previous) {
+    if (previous->forward()
+        && ((previous->qualifier() == tPUBLIC && node->qualifier() == tPUBLIC)
+            || (previous->qualifier() == tPRIVATE && node->qualifier() == tPRIVATE))) {
+      _symtab.replace(function->name(), function);
+      _parent->set_new_symbol(function);
+    } else {
+      throw std::string("conflicting definition for '" + function->name() + "'");
+    }
+  } else {
+    _symtab.insert(function->name(), function);
+    _parent->set_new_symbol(function);
+  }
+
+  // TODO check if there's at least 1 prologue, body or epilogue
 }
 
 void fir::type_checker::do_function_call_node(fir::function_call_node *const node, int lvl) {
@@ -258,7 +296,7 @@ void fir::type_checker::do_stack_alloc_node(fir::stack_alloc_node *const node, i
 }
 
 void fir::type_checker::do_prologue_node(fir::prologue_node *const node, int lvl) {
-  // TODO
+  // EMPTY
 }
 
 void fir::type_checker::do_identity_node(fir::identity_node *const node, int lvl) {

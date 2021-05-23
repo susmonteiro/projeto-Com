@@ -2,7 +2,9 @@
 #include <sstream>
 #include "targets/type_checker.h"
 #include "targets/postfix_writer.h"
+#include "targets/frame_size_calculator.h"
 #include "ast/all.h"  // all.h is automatically generated
+#include "fir_parser.tab.h"
 
 //---------------------------------------------------------------------------
 
@@ -179,19 +181,34 @@ void fir::postfix_writer::do_evaluation_node(fir::evaluation_node * const node, 
 }
 
 void fir::postfix_writer::do_print_node(fir::print_node * const node, int lvl) {
-  /* ASSERT_SAFE_EXPRESSIONS;
-  node->arguments()->accept(this, lvl); // determine the value to print
-  if (node->arguments()->is_typed(cdk::TYPE_INT)) {
-    _pf.CALL("printi");
-    _pf.TRASH(4); // delete the printed value
-  } else if (node->arguments()->is_typed(cdk::TYPE_STRING)) {
-    _pf.CALL("prints");
-    _pf.TRASH(4); // delete the printed value's address
-  } else {
-    std::cerr << "ERROR: CANNOT HAPPEN!" << std::endl;
-    exit(1);
+  ASSERT_SAFE_EXPRESSIONS;
+
+  for (size_t ix = 0; ix < node->arguments()->size(); ix++) {
+    auto child = dynamic_cast<cdk::expression_node*>(node->arguments()->node(ix));
+
+    child->accept(this, lvl); // expression to print
+    if (child->is_typed(cdk::TYPE_INT)) {
+      _functions_to_declare.insert("printi");
+      _pf.CALL("printi");
+      _pf.TRASH(4); // trash int
+    } else if (child->is_typed(cdk::TYPE_DOUBLE)) {
+      _functions_to_declare.insert("printd");
+      _pf.CALL("printd");
+      _pf.TRASH(8); // trash double
+    } else if (child->is_typed(cdk::TYPE_STRING)) {
+      _functions_to_declare.insert("prints");
+      _pf.CALL("prints");
+      _pf.TRASH(4); // trash char pointer
+    } else {
+      std::cerr << "cannot print expression of unknown type" << std::endl;
+      exit(1);
+    }
   }
-  _pf.CALL("println"); // print a newline */
+
+  if (node->newline()) {
+    _functions_to_declare.insert("println");
+    _pf.CALL("println");
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -267,12 +284,18 @@ void fir::postfix_writer::do_return_node(fir::return_node * const node, int lvl)
 //---------------------------------------------------------------------------
 
 void fir::postfix_writer::do_block_node(fir::block_node * const node, int lvl) {
-  // TODO
+  _symtab.push(); // for block-local vars
+  if (node->declarations()) node->declarations()->accept(this, lvl + 2);
+  if (node->instructions()) node->instructions()->accept(this, lvl + 2);
+  _symtab.pop();
 }
 
 //---------------------------------------------------------------------------
 
 void fir::postfix_writer::do_variable_declaration_node(fir::variable_declaration_node * const node, int lvl) {
+  // ASSERT_SAFE_EXPRESSIONS;
+  
+  // auto id = node->identifier();
   // TODO
 }
 
@@ -283,7 +306,74 @@ void fir::postfix_writer::do_function_declaration_node(fir::function_declaration
 }
 
 void fir::postfix_writer::do_function_definition_node(fir::function_definition_node * const node, int lvl) {
-  // TODO
+  ASSERT_SAFE_EXPRESSIONS;
+  
+  if (_inFunctionBody || _inFunctionArgs) { //FIXME really needed?
+    error(node->lineno(), "cannot define function in body or in arguments");
+    return;
+  }
+
+  // remember symbol so that args and body know
+  _function = new_symbol();
+  _functions_to_declare.erase(_function->name()); // just in case
+  reset_new_symbol();
+
+  _currentBodyRetLabel = mklbl(++_lbl);
+
+  _offset = 12;
+  _symtab.push(); // scope of args
+
+  if (node->arguments()) {
+    _inFunctionArgs = true; //FIXME really needed?
+    for (size_t ix = 0; ix < node->arguments()->size(); ix++) {
+      cdk::basic_node *arg = node->arguments()->node(ix);
+      if (arg == nullptr) break; // this means an empty sequence of arguments
+      arg->accept(this, 0); // the function symbol is at the top of the stack
+    }
+    _inFunctionArgs = false; //FIXME really needed?
+  }
+
+  _pf.TEXT();
+  _pf.ALIGN();
+  if (node->qualifier() == tPUBLIC) _pf.GLOBAL(_function->name(), _pf.FUNC());
+  _pf.LABEL(_function->name());
+
+  // compute stack size to be reserved for local variables
+  frame_size_calculator lsc(_compiler, _symtab, _function);
+  node->accept(&lsc, lvl);
+  _pf.ENTER(lsc.localsize()); // total stack size reserved for local variables
+
+  _offset = 0; // prepare for local variable
+
+  _inFunctionBody = true;
+  if (node->prologue()) {
+    os() << "        ;; prologue " << std::endl;
+    node->prologue()->accept(this, lvl + 4); // block has its own scope
+  }
+  if (node->block()) {
+    os() << "        ;; block " << std::endl;
+    node->block()->accept(this, lvl + 4); // block has its own scope
+  }
+  if (node->epilogue()) {
+    os() << "        ;; epilogue " << std::endl;
+    node->epilogue()->accept(this, lvl + 4); // block has its own scope
+  }
+  if (node->prologue()) {
+    _symtab.pop();  // exit prologue scope
+  }
+  _inFunctionBody = false;
+
+  _pf.LABEL(_currentBodyRetLabel);
+  _pf.LEAVE();
+  _pf.RET();
+
+  _symtab.pop(); // scope of arguments
+
+  if (node->identifier() == "fir") {
+    // declare external functions
+    for (std::string s : _functions_to_declare)
+      _pf.EXTERN(s);
+  }
 }
 
 void fir::postfix_writer::do_function_call_node(fir::function_call_node * const node, int lvl) {
@@ -307,7 +397,9 @@ void fir::postfix_writer::do_stack_alloc_node(fir::stack_alloc_node *const node,
 }
 
 void fir::postfix_writer::do_prologue_node(fir::prologue_node *const node, int lvl) {
-  // TODO
+  _symtab.push(); // for block-local vars
+  node->block()->accept(this, lvl + 2);
+  // TODO scopes
 }
 
 void fir::postfix_writer::do_identity_node(fir::identity_node *const node, int lvl) {
