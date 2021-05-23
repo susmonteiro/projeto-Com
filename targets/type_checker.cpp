@@ -30,7 +30,7 @@ void fir::type_checker::do_not_node(cdk::not_node *const node, int lvl) {
   // TODO
 }
 void fir::type_checker::do_and_node(cdk::and_node *const node, int lvl) {
-  // TODO
+  processBinaryExpression(node, lvl);
 }
 void fir::type_checker::do_or_node(cdk::or_node *const node, int lvl) {
   // TODO
