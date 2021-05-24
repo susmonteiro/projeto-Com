@@ -20,8 +20,8 @@ void fir::postfix_writer::do_not_node(cdk::not_node * const node, int lvl) {
   node->argument()->accept(this, lvl + 2);
   _pf.INT(0);
   _pf.EQ();
-  //_pf.NOT(); TODO why commented?
 }
+
 void fir::postfix_writer::do_and_node(cdk::and_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
 
@@ -330,10 +330,93 @@ void fir::postfix_writer::do_block_node(fir::block_node * const node, int lvl) {
 //---------------------------------------------------------------------------
 
 void fir::postfix_writer::do_variable_declaration_node(fir::variable_declaration_node * const node, int lvl) {
-  // ASSERT_SAFE_EXPRESSIONS;
+  ASSERT_SAFE_EXPRESSIONS;
   
-  // auto id = node->identifier();
-  // TODO
+  auto id = node->identifier();
+
+  // TODO remove this? 
+  // std::cout << "INITIAL OFFSET: " << _offset << std::endl;
+
+  int offset = 0, typesize = node->type()->size(); // in bytes
+  // std::cout << "ARG: " << id << ", " << typesize << std::endl;
+  if (_inFunctionBody) {
+    // std::cout << "IN BODY" << std::endl;
+    _offset -= typesize;
+    offset = _offset;
+  } else if (_inFunctionArgs) {
+    // std::cout << "IN ARGS" << std::endl;
+    offset = _offset;
+    _offset += typesize;
+  } else {
+    // std::cout << "GLOBAL!" << std::endl;
+    offset = 0; // global variable
+  }
+  // std::cout << "OFFSET: " << id << ", " << offset << std::endl;
+
+  auto symbol = new_symbol();
+  if (symbol) {
+    symbol->set_offset(offset);
+    reset_new_symbol();
+  }
+
+  if (_inFunctionBody) {
+    // if we are dealing with local variables, then no action is needed
+    // unless an initializer exists
+    if (node->initializer()) {
+      node->initializer()->accept(this, lvl);
+      if (node->is_typed(cdk::TYPE_INT) || node->is_typed(cdk::TYPE_STRING) || node->is_typed(cdk::TYPE_POINTER)) {
+        _pf.LOCAL(symbol->offset());
+        _pf.STINT();
+      } else if (node->is_typed(cdk::TYPE_DOUBLE)) {
+        if (node->initializer()->is_typed(cdk::TYPE_INT))
+          _pf.I2D();
+        _pf.LOCAL(symbol->offset());
+        _pf.STDOUBLE();
+      } else {
+        std::cerr << "cannot initialize" << std::endl;
+      }
+    }
+  } else {
+    if (!_function) {
+      if (node->initializer() == nullptr) {
+        _pf.BSS();
+        _pf.ALIGN();
+        _pf.LABEL(id);
+        _pf.SALLOC(typesize);
+      } else {
+        if (node->is_typed(cdk::TYPE_INT) || node->is_typed(cdk::TYPE_DOUBLE) || node->is_typed(cdk::TYPE_POINTER)) {
+          _pf.DATA();
+          _pf.ALIGN();
+          _pf.LABEL(id);
+
+          if (node->is_typed(cdk::TYPE_INT)) {
+            node->initializer()->accept(this, lvl);
+          } else if (node->is_typed(cdk::TYPE_POINTER)) {
+            node->initializer()->accept(this, lvl);
+          } else if (node->is_typed(cdk::TYPE_DOUBLE)) {
+            if (node->initializer()->is_typed(cdk::TYPE_DOUBLE)) {
+              node->initializer()->accept(this, lvl);
+            } else if (node->initializer()->is_typed(cdk::TYPE_INT)) {
+              cdk::integer_node *dclini = dynamic_cast<cdk::integer_node*>(node->initializer());
+              cdk::double_node ddi(dclini->lineno(), dclini->value());
+              ddi.accept(this, lvl);
+            } else {
+              std::cerr << node->lineno() << ": '" << id << "' has bad initializer for real value\n";
+              _errors = true; // TODO check is this used?
+            }
+          }
+        } else if (node->is_typed(cdk::TYPE_STRING)) {
+          _pf.DATA();
+          _pf.ALIGN();
+          _pf.LABEL(id);
+          node->initializer()->accept(this, lvl);
+        } else {
+          std::cerr << node->lineno() << ": '" << id << "' has unexpected initializer\n";
+          _errors = true; // TODO check is this used?
+        }
+      }
+    }
+  }
 }
 
 //---------------------------------------------------------------------------

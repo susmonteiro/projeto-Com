@@ -13,18 +13,21 @@ namespace fir {
     std::vector<std::shared_ptr<cdk::basic_type>> _argument_types;
 
     std::string _name;
-    long _value; // hack!
+    bool _initialized;
+    int _offset = 0;
+    long _value; // hack! TODO change this?
     bool _forward = false;
 
   public:
-    symbol(int qualifier, std::shared_ptr<cdk::basic_type> type, const std::string &name, long value, bool forward = false) :
-        _qualifier(qualifier), _type(type), _name(name), _value(value), _forward(forward) {
+    symbol(int qualifier, std::shared_ptr<cdk::basic_type> type, const std::string &name, bool initialized, long value, bool forward = false) :
+        _qualifier(qualifier), _type(type), _name(name), _initialized(initialized), _value(value), _forward(forward) {
     }
 
     symbol(std::shared_ptr<cdk::basic_type> type, const std::string &name, int qualifier) :
         _qualifier(qualifier), _type(type), _name(name) {
     }
 
+    // TODO remove this
     /* symbol(bool constant, int qualifier, std::shared_ptr<cdk::basic_type> type, const std::string &name, bool initialized,
            bool function, bool forward = false) :
         _name(name), _value(0), _constant(constant), _qualifier(qualifier), _type(type), _initialized(initialized), _function(
@@ -47,6 +50,12 @@ namespace fir {
     const std::string &name() const {
       return _name;
     }
+    int offset() const {
+      return _offset;
+    }
+    void set_offset(int offset) {
+      _offset = offset;
+    }
     long value() const {
       return _value;
     }
@@ -64,8 +73,8 @@ namespace fir {
   };
 
   inline auto make_symbol(int qualifier, std::shared_ptr<cdk::basic_type> type, const std::string &name,
-                          long value, bool forward = false) {
-    return std::make_shared<symbol>(qualifier, type, name, value, forward);
+                          bool initialized, long value, bool forward = false) {
+    return std::make_shared<symbol>(qualifier, type, name, initialized, value, forward);
   }
 
 } // fir
