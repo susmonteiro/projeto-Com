@@ -215,7 +215,7 @@ void fir::type_checker::do_variable_node(cdk::variable_node *const node, int lvl
   if (symbol != nullptr) {
     node->type(symbol->type());
   } else {
-    throw id;
+    throw std::string("undeclared variable '" + id + "'");
   }
 }
 
@@ -296,11 +296,11 @@ void fir::type_checker::do_sizeof_node(fir::sizeof_node *const node, int lvl) {
 //---------------------------------------------------------------------------
 
 void fir::type_checker::do_leave_node(fir::leave_node *const node, int lvl) {
-  // TODO
+  // EMPTY
 }
 
 void fir::type_checker::do_restart_node(fir::restart_node *const node, int lvl) {
-  // TODO
+  // EMPTY
 }
 
 //---------------------------------------------------------------------------

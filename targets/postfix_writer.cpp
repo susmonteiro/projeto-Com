@@ -104,64 +104,123 @@ void fir::postfix_writer::do_neg_node(cdk::neg_node * const node, int lvl) {
 
 void fir::postfix_writer::do_add_node(cdk::add_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
+
   node->left()->accept(this, lvl);
-  node->right()->accept(this, lvl);
-  _pf.ADD();
+  if (node->type()->name() == cdk::TYPE_DOUBLE && node->left()->type()->name() == cdk::TYPE_INT) {
+    _pf.I2D();
+  } else if (node->type()->name() == cdk::TYPE_POINTER) {
+    // TODO check thiiiis
+    _pf.INT(3);
+    _pf.SHTL();
+  }
+
+  node->right()->accept(this, lvl + 2);
+  if (node->type()->name() == cdk::TYPE_DOUBLE && node->right()->type()->name() == cdk::TYPE_INT) {
+    _pf.I2D();
+  } else if (node->type()->name() == cdk::TYPE_POINTER && node->right()->type()->name() == cdk::TYPE_INT) {
+    _pf.INT(3);
+    _pf.SHTL();
+  }
+
+  if (node->type()->name() == cdk::TYPE_DOUBLE)
+    _pf.DADD();
+  else
+    _pf.ADD();
 }
+
 void fir::postfix_writer::do_sub_node(cdk::sub_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
-  node->left()->accept(this, lvl);
-  node->right()->accept(this, lvl);
-  _pf.SUB();
+
+  node->left()->accept(this, lvl + 2);
+  if (node->type()->name() == cdk::TYPE_DOUBLE && node->left()->type()->name() == cdk::TYPE_INT) _pf.I2D();
+
+  node->right()->accept(this, lvl + 2);
+  if (node->type()->name() == cdk::TYPE_DOUBLE && node->right()->type()->name() == cdk::TYPE_INT) {
+    _pf.I2D();
+  } else if (node->type()->name() == cdk::TYPE_POINTER && node->right()->type()->name() == cdk::TYPE_INT) {
+    _pf.INT(3);
+    _pf.SHTL();
+  }
+
+  if (node->type()->name() == cdk::TYPE_DOUBLE)
+    _pf.DSUB();
+  else
+    _pf.SUB();
 }
+
 void fir::postfix_writer::do_mul_node(cdk::mul_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
+
   node->left()->accept(this, lvl);
+  if (node->type()->name() == cdk::TYPE_DOUBLE && node->left()->type()->name() == cdk::TYPE_INT) _pf.I2D();
+
   node->right()->accept(this, lvl);
-  _pf.MUL();
+  if (node->type()->name() == cdk::TYPE_DOUBLE && node->right()->type()->name() == cdk::TYPE_INT) _pf.I2D();
+
+  if (node->type()->name() == cdk::TYPE_DOUBLE)
+    _pf.DMUL();
+  else
+    _pf.MUL();
 }
+
 void fir::postfix_writer::do_div_node(cdk::div_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
-  node->left()->accept(this, lvl);
-  node->right()->accept(this, lvl);
-  _pf.DIV();
+  
+  node->left()->accept(this, lvl + 2);
+  if (node->type()->name() == cdk::TYPE_DOUBLE && node->left()->type()->name() == cdk::TYPE_INT) _pf.I2D();
+
+  node->right()->accept(this, lvl + 2);
+  if (node->type()->name() == cdk::TYPE_DOUBLE && node->right()->type()->name() == cdk::TYPE_INT) _pf.I2D();
+
+  if (node->type()->name() == cdk::TYPE_DOUBLE)
+    _pf.DDIV();
+  else
+    _pf.DIV();
 }
+
 void fir::postfix_writer::do_mod_node(cdk::mod_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
   node->left()->accept(this, lvl);
   node->right()->accept(this, lvl);
   _pf.MOD();
 }
+
 void fir::postfix_writer::do_lt_node(cdk::lt_node * const node, int lvl) {
+  // TODO DMCP?
   ASSERT_SAFE_EXPRESSIONS;
   node->left()->accept(this, lvl);
   node->right()->accept(this, lvl);
   _pf.LT();
 }
+
 void fir::postfix_writer::do_le_node(cdk::le_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
   node->left()->accept(this, lvl);
   node->right()->accept(this, lvl);
   _pf.LE();
 }
+
 void fir::postfix_writer::do_ge_node(cdk::ge_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
   node->left()->accept(this, lvl);
   node->right()->accept(this, lvl);
   _pf.GE();
 }
+
 void fir::postfix_writer::do_gt_node(cdk::gt_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
   node->left()->accept(this, lvl);
   node->right()->accept(this, lvl);
   _pf.GT();
 }
+
 void fir::postfix_writer::do_ne_node(cdk::ne_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
   node->left()->accept(this, lvl);
   node->right()->accept(this, lvl);
   _pf.NE();
 }
+
 void fir::postfix_writer::do_eq_node(cdk::eq_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
   node->left()->accept(this, lvl);
@@ -173,8 +232,15 @@ void fir::postfix_writer::do_eq_node(cdk::eq_node * const node, int lvl) {
 
 void fir::postfix_writer::do_variable_node(cdk::variable_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
-  // simplified generation: all variables are global
-  _pf.ADDR(node->name());
+
+  const std::string &id = node->name();
+  auto symbol = _symtab.find(id);
+
+  if (symbol->global()) {
+    _pf.ADDR(symbol->name());
+  } else {
+    _pf.LOCAL(symbol->offset());
+  }
 }
 
 void fir::postfix_writer::do_rvalue_node(cdk::rvalue_node * const node, int lvl) {
