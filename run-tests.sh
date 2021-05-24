@@ -19,7 +19,7 @@ for f in *.fir; do
 	./test_fir > "${f%.*}.out"
         #if ! ./test_fir > "${f%.*}.out" ; then
         #    echo "$f execution error"
-        if [ -z "$(diff "${f%.*}.out" "expected/${f%.*}.out")" ]; then
+        if [ -z "$(diff -wBb "${f%.*}.out" "expected/${f%.*}.out")" ]; then
 	    echo "$f ${GREEN}passed${NC}"
             passed=$(($passed+1))
         else
