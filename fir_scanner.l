@@ -101,13 +101,13 @@
 \'                     yy_push_state(X_STRING); yylval.s = new std::string("");
 <X_STRING>\~           yy_push_state(X_TILDE);
 <X_STRING>\'           yy_pop_state(); return tSTRING;
-<X_STRING>\\\'         *yylval.s += yytext + 1;
 <X_STRING>.            *yylval.s += yytext;
 <X_STRING>\n           yyerror("newline in string");
 
 <X_TILDE>n             *yylval.s += '\n'; yy_pop_state();
 <X_TILDE>r             *yylval.s += '\r'; yy_pop_state();
 <X_TILDE>t             *yylval.s += '\t'; yy_pop_state();
+<X_TILDE>'             *yylval.s += '\''; yy_pop_state();
 <X_TILDE>\~            *yylval.s += '~'; yy_pop_state();
 
 <X_TILDE>[[:xdigit:]]{1,2} {
