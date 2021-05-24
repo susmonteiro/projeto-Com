@@ -3,6 +3,7 @@
 *.lo
 *.o
 *.obj
+*.xml
 
 # Precompiled Headers
 *.gch
@@ -25,6 +26,7 @@
 # Executables
 *.exe
 *.out
+!tests/expected/*.out
 *.app
 
 .dropbox.attr
