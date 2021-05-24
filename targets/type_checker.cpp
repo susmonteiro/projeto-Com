@@ -343,7 +343,7 @@ void fir::type_checker::do_variable_declaration_node(fir::variable_declaration_n
   }
 
   const std::string &id = node->identifier();
-  auto symbol = fir::make_symbol(node->qualifier(), node->type(), id, (bool)node->initializer(), 0, false);
+  auto symbol = fir::make_symbol(node->qualifier(), node->type(), id, (bool)node->initializer(), false, 0, false);
 
   if (_symtab.insert(id, symbol)) {
     _parent->set_new_symbol(symbol);
@@ -371,7 +371,7 @@ void fir::type_checker::do_function_definition_node(fir::function_definition_nod
 
   _inBlockReturnType = nullptr;
 
-  auto function = fir::make_symbol(node->qualifier(), node->type(), id, false, 0, true);
+  auto function = fir::make_symbol(node->qualifier(), node->type(), id, false, true, 0, true);
 
   if (node->arguments()) {
     std::vector <std::shared_ptr<cdk::basic_type>> argtypes;
@@ -399,7 +399,28 @@ void fir::type_checker::do_function_definition_node(fir::function_definition_nod
 }
 
 void fir::type_checker::do_function_call_node(fir::function_call_node *const node, int lvl) {
-  // TODO
+  ASSERT_UNSPEC;
+
+  const std::string &id = node->identifier();
+  auto symbol = _symtab.find(id);
+  if (symbol == nullptr) throw std::string("symbol '" + id + "' is undeclared.");
+  if (!symbol->isFunction()) throw std::string("symbol '" + id + "' is not a function.");
+  // TODO type_struct?
+  node->type(symbol->type());
+  if (node->arguments()) {
+    if (node->arguments()->size() == symbol->number_of_arguments()) {
+      node->arguments()->accept(this, lvl + 4);
+      for (size_t ax = 0; ax < node->arguments()->size(); ax++) {
+        if (node->argument(ax)->type() == symbol->argument_type(ax)) continue;
+        if (symbol->argument_is_typed(ax, cdk::TYPE_DOUBLE) && node->argument(ax)->is_typed(cdk::TYPE_INT)) continue;
+        throw std::string("type mismatch for argument " + std::to_string(ax + 1) + " of '" + id + "'.");
+      }
+    } else {
+      throw std::string(
+          "number of arguments in call (" + std::to_string(node->arguments()->size()) + ") must match declaration ("
+              + std::to_string(symbol->number_of_arguments()) + ").");
+    }
+  }
 }
 
 void fir::type_checker::do_null_node(fir::null_node *const node, int lvl) {

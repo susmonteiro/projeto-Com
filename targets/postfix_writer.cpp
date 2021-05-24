@@ -273,14 +273,7 @@ void fir::postfix_writer::do_assignment_node(cdk::assignment_node * const node, 
 void fir::postfix_writer::do_evaluation_node(fir::evaluation_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
   node->argument()->accept(this, lvl); // determine the value
-  if (node->argument()->is_typed(cdk::TYPE_INT)) {
-    _pf.TRASH(4); // delete the evaluated value
-  } else if (node->argument()->is_typed(cdk::TYPE_STRING)) {
-    _pf.TRASH(4); // delete the evaluated value's address
-  } else {
-    std::cerr << "ERROR: CANNOT HAPPEN!" << std::endl;
-    exit(1);
-  }
+  _pf.TRASH(node->argument()->type()->size());
 }
 
 void fir::postfix_writer::do_print_node(fir::print_node * const node, int lvl) {
@@ -303,8 +296,7 @@ void fir::postfix_writer::do_print_node(fir::print_node * const node, int lvl) {
       _pf.CALL("prints");
       _pf.TRASH(4); // trash char pointer
     } else {
-      std::cerr << "cannot print expression of unknown type" << std::endl;
-      exit(1);
+      error(node->lineno(), "cannot print expression of unknown type");
     }
   }
 
@@ -458,7 +450,7 @@ void fir::postfix_writer::do_variable_declaration_node(fir::variable_declaration
         _pf.LOCAL(symbol->offset());
         _pf.STDOUBLE();
       } else {
-        std::cerr << "cannot initialize" << std::endl;
+        error(node->lineno(), "cannot initialize");
       }
     }
   } else {
@@ -582,7 +574,35 @@ void fir::postfix_writer::do_function_definition_node(fir::function_definition_n
 }
 
 void fir::postfix_writer::do_function_call_node(fir::function_call_node * const node, int lvl) {
-  // TODO
+  ASSERT_SAFE_EXPRESSIONS;
+
+  auto symbol = _symtab.find(node->identifier());
+
+  size_t argsSize = 0;
+  if (node->arguments()) {
+    if (node->arguments()->size() > 0) {
+      for (int ax = node->arguments()->size() - 1; ax >= 0; ax--) {
+        cdk::expression_node *arg = dynamic_cast<cdk::expression_node*>(node->arguments()->node(ax));
+        arg->accept(this, lvl + 2);
+        if (symbol->argument_is_typed(ax, cdk::TYPE_DOUBLE) && arg->is_typed(cdk::TYPE_INT)) {
+          _pf.I2D();
+        }
+        argsSize += symbol->argument_size(ax);
+      }
+    }
+  }
+  _pf.CALL(node->identifier());
+  if (argsSize != 0) {
+    _pf.TRASH(argsSize);
+  }
+
+  if (symbol->is_typed(cdk::TYPE_INT) || symbol->is_typed(cdk::TYPE_POINTER) || symbol->is_typed(cdk::TYPE_STRING)) {
+    _pf.LDFVAL32();
+  } else if (symbol->is_typed(cdk::TYPE_DOUBLE)) {
+    _pf.LDFVAL64();
+  } else {
+    error(node->lineno(), "wrong type");
+  }
 }
 
 void fir::postfix_writer::do_null_node(fir::null_node *const node, int lvl) {
