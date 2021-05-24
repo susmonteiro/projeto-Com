@@ -4,6 +4,7 @@
 #include "targets/basic_ast_visitor.h"
 
 #include <set>
+#include <stack>
 #include <sstream>
 #include <cdk/emitters/basic_postfix_emitter.h>
 
@@ -18,7 +19,8 @@ namespace fir {
     std::set<std::string> _functions_to_declare;
 
     bool _errors, _inFunction, _inFunctionName, _inFunctionArgs, _inFunctionBody;
-    std::shared_ptr<fir::symbol> _function; // for keeping track of the current function and its arguments
+    std::stack<int> _whileIni, _whileEnd; // while break/repeat
+    std::shared_ptr<fir::symbol> _function;     // for keeping track of the current function and its arguments
     int _offset;                            // current framepointer offset (0 means no vars defined)
 
     std::string _currentBodyRetLabel; // where to jump when a return occurs of an exclusive section ends

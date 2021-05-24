@@ -328,13 +328,22 @@ void fir::postfix_writer::do_read_node(fir::read_node * const node, int lvl) {
 
 void fir::postfix_writer::do_while_node(fir::while_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
-  int lbl1, lbl2;
-  _pf.LABEL(mklbl(lbl1 = ++_lbl));
+
+  _whileIni.push(++_lbl);
+  _whileEnd.push(++_lbl);
+  
+  _pf.LABEL(mklbl(_whileIni.top()));
   node->condition()->accept(this, lvl);
-  _pf.JZ(mklbl(lbl2 = ++_lbl));
+  _pf.JZ(mklbl(_whileEnd.top()));
+
   node->block()->accept(this, lvl + 2);
-  _pf.JMP(mklbl(lbl1));
-  _pf.LABEL(mklbl(lbl2));
+  _pf.JMP(mklbl(_whileIni.top()));
+
+  _pf.LABEL(mklbl(_whileEnd.top()));
+  if (node->finally_block()) node->finally_block()->accept(this, lvl + 2);
+
+  _whileIni.pop();
+  _whileEnd.pop();
 }
 
 //---------------------------------------------------------------------------
@@ -371,11 +380,21 @@ void fir::postfix_writer::do_sizeof_node(fir::sizeof_node * const node, int lvl)
 //---------------------------------------------------------------------------
 
 void fir::postfix_writer::do_leave_node(fir::leave_node * const node, int lvl) {
-  // TODO
+  for (int i = 0; i < node->level(); i++) {
+    if (_whileIni.size() != 0)
+      _pf.JMP(mklbl(_whileEnd.top())); // jump to while end
+    else
+      error(node->lineno(), "'leave' outside while");
+  }
 }
 
 void fir::postfix_writer::do_restart_node(fir::restart_node * const node, int lvl) {
-  // TODO
+  for (int i = 0; i < node->level(); i++) {
+    if (_whileIni.size() != 0)
+      _pf.JMP(mklbl(_whileIni.top())); // jump to while beginning
+    else
+      error(node->lineno(), "'restart' outside while");
+  }
 }
 
 //---------------------------------------------------------------------------
