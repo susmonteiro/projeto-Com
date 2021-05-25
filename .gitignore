@@ -28,5 +28,13 @@
 *.out
 !tests/expected/*.out
 *.app
+fir
 
 .dropbox.attr
+
+fir_parser.tab.h
+all.h
+visitor_decls.h
+fir_parser.output
+fir_parser.tab.c
+fir_scanner.cpp
