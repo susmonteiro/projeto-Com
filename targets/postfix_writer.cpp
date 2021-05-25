@@ -246,7 +246,11 @@ void fir::postfix_writer::do_variable_node(cdk::variable_node * const node, int 
 void fir::postfix_writer::do_rvalue_node(cdk::rvalue_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
   node->lvalue()->accept(this, lvl);
-  _pf.LDINT(); // depends on type size
+  if (node->type()->name() == cdk::TYPE_DOUBLE) {
+    _pf.LDDOUBLE();
+  } else {
+    _pf.LDINT();
+  }
 }
 
 void fir::postfix_writer::do_assignment_node(cdk::assignment_node * const node, int lvl) {
@@ -429,10 +433,10 @@ void fir::postfix_writer::do_return_node(fir::return_node * const node, int lvl)
 //---------------------------------------------------------------------------
 
 void fir::postfix_writer::do_block_node(fir::block_node * const node, int lvl) {
-  _symtab.push(); // for block-local vars
+  if (!_prologue) _symtab.push(); // TODO what if inside while
   if (node->declarations()) node->declarations()->accept(this, lvl + 2);
   if (node->instructions()) node->instructions()->accept(this, lvl + 2);
-  _symtab.pop();
+  if (!_prologue) _symtab.pop();
 }
 
 //---------------------------------------------------------------------------
@@ -587,25 +591,34 @@ void fir::postfix_writer::do_function_definition_node(fir::function_definition_n
   // initialize return variable
   var->accept(this, 0);
 
+  if (!node->prologue() && !node->block() && !node->epilogue()) {
+    error(node->lineno(), "at least one of the parts is needed");
+  }
+
   if (node->prologue()) {
+    _prologue = true;
     os() << "        ;; prologue " << std::endl;
     node->prologue()->accept(this, lvl + 4); // block has its own scope
+    _prologue = false;
   }
   if (node->block()) {
     os() << "        ;; block " << std::endl;
     node->block()->accept(this, lvl + 4); // block has its own scope
   }
+  _pf.LABEL(_currentBodyRetLabel);
+  
   if (node->epilogue()) {
     os() << "        ;; epilogue " << std::endl;
     node->epilogue()->accept(this, lvl + 4); // block has its own scope
   }
+  
   if (node->prologue()) {
     _symtab.pop();  // exit prologue scope
   }
+  
   _inFunctionBody = false;
   _returnSeen = false;  // TODO needed?
 
-  _pf.LABEL(_currentBodyRetLabel);
 
   // TODO should this be done somewhere else?
   // return_value
@@ -719,7 +732,6 @@ void fir::postfix_writer::do_stack_alloc_node(fir::stack_alloc_node *const node,
 void fir::postfix_writer::do_prologue_node(fir::prologue_node *const node, int lvl) {
   _symtab.push(); // for block-local vars
   node->block()->accept(this, lvl + 2);
-  // TODO scopes
 }
 
 void fir::postfix_writer::do_identity_node(fir::identity_node *const node, int lvl) {

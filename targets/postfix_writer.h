@@ -20,6 +20,7 @@ namespace fir {
 
     bool _errors, _inFunction, _inFunctionName, _inFunctionArgs, _inFunctionBody;
     bool _returnSeen = false; // when building a function TODO needed?
+    bool _prologue = false;
     std::stack<int> _whileIni, _whileEnd; // while break/repeat
     std::shared_ptr<fir::symbol> _function;     // for keeping track of the current function and its arguments
     int _offset;                            // current framepointer offset (0 means no vars defined)
