@@ -61,12 +61,14 @@ void fir::type_checker::do_string_node(cdk::string_node *const node, int lvl) {
 //---------------------------------------------------------------------------
 
 void fir::type_checker::processUnaryExpression(cdk::unary_operation_node *const node, int lvl) {
+  ASSERT_UNSPEC;
   node->argument()->accept(this, lvl + 2);
-  if (!node->argument()->is_typed(cdk::TYPE_INT)) throw std::string("wrong type in argument of unary expression");
-
-  // in Simple, expressions are always int
-  node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
-  // TODO
+  if (node->argument()->is_typed(cdk::TYPE_INT))
+    node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
+  else if (node->argument()->is_typed(cdk::TYPE_DOUBLE))
+    node->type(cdk::primitive_type::create(8, cdk::TYPE_DOUBLE));
+  else
+    throw std::string("wrong type in argument of unary expression");
 }
 
 void fir::type_checker::do_neg_node(cdk::neg_node *const node, int lvl) {
@@ -473,19 +475,45 @@ void fir::type_checker::do_function_call_node(fir::function_call_node *const nod
 }
 
 void fir::type_checker::do_null_node(fir::null_node *const node, int lvl) {
-  // TODO
+  ASSERT_UNSPEC;
+  node->type(cdk::reference_type::create(4, nullptr));
 }
 
 void fir::type_checker::do_address_of_node(fir::address_of_node *const node, int lvl) {
-  // TODO
+  ASSERT_UNSPEC;
+  node->lvalue()->accept(this, lvl + 2);
+  node->type(cdk::reference_type::create(4, node->lvalue()->type()));
 }
 
 void fir::type_checker::do_index_node(fir::index_node *const node, int lvl) {
-  // TODO
+  ASSERT_UNSPEC;
+  
+  std::shared_ptr < cdk::reference_type > btype;
+
+  if (node->base()) {
+    node->base()->accept(this, lvl + 2);
+    btype = cdk::reference_type::cast(node->base()->type());
+    if (!node->base()->is_typed(cdk::TYPE_POINTER)) throw std::string("pointer expression expected in index left-value");
+  }/* else {
+    btype = cdk::reference_type::cast(_function->type());
+    if (!_function->is_typed(cdk::TYPE_POINTER)) throw std::string("return pointer expression expected in index left-value");
+  } */ // TODO
+
+  node->index()->accept(this, lvl + 2);
+  if (!node->index()->is_typed(cdk::TYPE_INT)) throw std::string("integer expression expected in left-value index");
+
+  node->type(btype->referenced());
+
 }
 
 void fir::type_checker::do_stack_alloc_node(fir::stack_alloc_node *const node, int lvl) {
-  // TODO
+  ASSERT_UNSPEC;
+  node->argument()->accept(this, lvl + 2);
+  if (!node->argument()->is_typed(cdk::TYPE_INT)) {
+    throw std::string("integer expression expected in allocation expression");
+  }
+  // TODO check me
+  node->type(cdk::primitive_type::create(4, cdk::TYPE_POINTER));
 }
 
 void fir::type_checker::do_prologue_node(fir::prologue_node *const node, int lvl) {
@@ -493,5 +521,5 @@ void fir::type_checker::do_prologue_node(fir::prologue_node *const node, int lvl
 }
 
 void fir::type_checker::do_identity_node(fir::identity_node *const node, int lvl) {
-  // TODO
+  processUnaryExpression(node, lvl);
 }

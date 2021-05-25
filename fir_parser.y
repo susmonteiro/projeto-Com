@@ -235,8 +235,8 @@ expr           : integer                       { $$ = $1; }
                | expr tAND expr                { $$ = new cdk::and_node(LINE, $1, $3); }
                | expr tOR  expr                { $$ = new cdk::or_node (LINE, $1, $3); }
                // unary expressions  
+               | '+' expr %prec tUNARY         { $$ = new fir::identity_node(LINE, $2); }
                | '-' expr %prec tUNARY         { $$ = new cdk::neg_node(LINE, $2); }
-               | '+' expr %prec tUNARY         { $$ = $2; }
                | '~' expr                      { $$ = new cdk::not_node(LINE, $2); }
                // read expression  
                | '@'                           { $$ = new fir::read_node(LINE); }

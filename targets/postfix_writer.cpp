@@ -423,7 +423,7 @@ void fir::postfix_writer::do_restart_node(fir::restart_node * const node, int lv
 //---------------------------------------------------------------------------
 
 void fir::postfix_writer::do_return_node(fir::return_node * const node, int lvl) {
-  // TODO
+  _pf.JMP(_currentBodyRetLabel);
 }
 
 //---------------------------------------------------------------------------
@@ -442,24 +442,20 @@ void fir::postfix_writer::do_variable_declaration_node(fir::variable_declaration
 
   auto id = node->identifier();
 
-  // TODO remove this? 
-  // std::cout << "INITIAL OFFSET: " << _offset << std::endl;
-
   int offset = 0, typesize = node->type()->size(); // in bytes
-  // std::cout << "ARG: " << id << ", " << typesize << std::endl;
+
   if (_inFunctionBody) {
-    // std::cout << "IN BODY" << std::endl;
+
     _offset -= typesize;
     offset = _offset;
   } else if (_inFunctionArgs) {
-    // std::cout << "IN ARGS" << std::endl;
+
     offset = _offset;
     _offset += typesize;
   } else {
-    // std::cout << "GLOBAL!" << std::endl;
+
     offset = 0; // global variable
   }
-  // std::cout << "OFFSET: " << id << ", " << offset << std::endl;
 
   auto symbol = new_symbol();
   if (symbol) {
@@ -510,7 +506,6 @@ void fir::postfix_writer::do_variable_declaration_node(fir::variable_declaration
               ddi.accept(this, lvl);
             } else {
               std::cerr << node->lineno() << ": '" << id << "' has bad initializer for real value\n";
-              _errors = true; // TODO check is this used?
             }
           }
         } else if (node->is_typed(cdk::TYPE_STRING)) {
@@ -520,7 +515,6 @@ void fir::postfix_writer::do_variable_declaration_node(fir::variable_declaration
           node->initializer()->accept(this, lvl);
         } else {
           std::cerr << node->lineno() << ": '" << id << "' has unexpected initializer\n";
-          _errors = true; // TODO check is this used?
         }
       }
     }
@@ -611,6 +605,8 @@ void fir::postfix_writer::do_function_definition_node(fir::function_definition_n
   _inFunctionBody = false;
   _returnSeen = false;  // TODO needed?
 
+  _pf.LABEL(_currentBodyRetLabel);
+
   // TODO should this be done somewhere else?
   // return_value
   auto _variable = _symtab.find(var->identifier());
@@ -678,19 +674,46 @@ void fir::postfix_writer::do_function_call_node(fir::function_call_node * const 
 }
 
 void fir::postfix_writer::do_null_node(fir::null_node *const node, int lvl) {
-  // EMPTY
+  ASSERT_SAFE_EXPRESSIONS;
+
+  if (_inFunctionBody) {
+    _pf.INT(0);
+  } else {
+    _pf.SINT(0);
+  }
 }
 
 void fir::postfix_writer::do_address_of_node(fir::address_of_node *const node, int lvl) {
-  // TODO
+  ASSERT_SAFE_EXPRESSIONS;
+
+  node->lvalue()->accept(this, lvl + 2);
 }
 
 void fir::postfix_writer::do_index_node(fir::index_node *const node, int lvl) {
-  // TODO
+  ASSERT_SAFE_EXPRESSIONS;
+
+  if (node->base()) {
+    node->base()->accept(this, lvl);
+  } else {
+    if (_function) {
+      _pf.LOCV(-_function->type()->size()); // TODO check this
+    } else {
+      std::cerr << "FATAL: " << node->lineno() << ": trying to use return value outside function" << std::endl;
+    }
+  }
+  node->index()->accept(this, lvl);
+  _pf.INT(3);
+  _pf.SHTL();
+  _pf.ADD(); // add pointer and index
 }
 
 void fir::postfix_writer::do_stack_alloc_node(fir::stack_alloc_node *const node, int lvl) {
-  // TODO
+  ASSERT_SAFE_EXPRESSIONS;
+  node->argument()->accept(this, lvl);
+  _pf.INT(3); // TODO change this
+  _pf.SHTL();
+  _pf.ALLOC(); // allocate
+  _pf.SP(); // put base pointer in stack
 }
 
 void fir::postfix_writer::do_prologue_node(fir::prologue_node *const node, int lvl) {
@@ -700,5 +723,6 @@ void fir::postfix_writer::do_prologue_node(fir::prologue_node *const node, int l
 }
 
 void fir::postfix_writer::do_identity_node(fir::identity_node *const node, int lvl) {
-  // TODO
+  ASSERT_SAFE_EXPRESSIONS;
+  node->argument()->accept(this, lvl);
 }
