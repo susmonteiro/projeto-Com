@@ -10,13 +10,13 @@ cp $1 .
 f=$(basename $1)
 
 if ./fir --target asm $f && yasm -felf32 "${f%.*}.asm" && ld -melf_i386 -o test_fir "${f%.*}.o" -lrts ; then
-    ./test_fir | tr -d "\n" > "${f%.*}.out"
+    ./test_fir > "${f%.*}.out"
 
-    DIFF=$(diff -wBb "${f%.*}.out" "tests/expected/${f%.*}.out")
+    DIFF=$(diff -wBb <(tr -d '\n' < "${f%.*}.out") <(tr -d '\n' < "tests/expected/${f%.*}.out"))
 
     if [ -z "$DIFF" ]; then
         echo "${GREEN}passed${NC}"
-        passed=$(($passed+f))
+        passed=$(($passed+1))
     else
         echo "${RED}failed${NC}"
         echo "$DIFF"

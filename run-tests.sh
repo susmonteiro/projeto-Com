@@ -16,10 +16,10 @@ for f in *.fir; do
 
     if ../fir --target asm $f && yasm -felf32 "${f%.*}.asm" && ld -melf_i386 -o test_fir "${f%.*}.o" -lrts ; then
     	compiled=$(($compiled+1))
-	    timeout 1 ./test_fir | tr -d "\n" > "${f%.*}.out"
+	    timeout 1 ./test_fir > "${f%.*}.out"
         #if ! ./test_fir > "${f%.*}.out" ; then
         #    echo "$f execution error"
-        if [ -z "$(diff -wBb "${f%.*}.out" "expected/${f%.*}.out" || echo xixi)" ]; then
+        if [ -z "$(diff -wBb <(tr -d '\n' < "${f%.*}.out") <(tr -d '\n' < "expected/${f%.*}.out") || echo xixi)" ]; then
             echo "$f ${GREEN}passed${NC}"
             passed=$(($passed+1))
         else
