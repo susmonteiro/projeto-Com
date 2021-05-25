@@ -355,7 +355,42 @@ void fir::type_checker::do_variable_declaration_node(fir::variable_declaration_n
 //---------------------------------------------------------------------------
 
 void fir::type_checker::do_function_declaration_node(fir::function_declaration_node *const node, int lvl) {
-  // TODO
+  std::string id;
+
+  // "fix" naming issues...
+  if (node->identifier() == "fir")
+    id = "_main";
+  else if (node->identifier() == "_main")
+    id = "._main";
+  else
+    id = node->identifier();
+
+  // remember symbol so that args know
+  auto function = fir::make_symbol(node->qualifier(), node->type(), id, false, true, 0, true);
+
+  if (node->arguments()) {
+    std::vector <std::shared_ptr<cdk::basic_type>> argtypes;
+    for (size_t ax = 0; ax < node->arguments()->size(); ax++)
+      argtypes.push_back(node->argument(ax)->type());
+    function->set_argument_types(argtypes);
+  }
+
+  std::shared_ptr<fir::symbol> previous = _symtab.find(function->name());
+  if (previous) {
+    if (true /* previous->forward()
+        && ((previous->qualifier() == tPUBLIC && node->qualifier() == tPUBLIC)
+            || (previous->qualifier() == tPRIVATE && node->qualifier() == tPRIVATE)) */
+    // TODO
+    ) {
+      _symtab.replace(function->name(), function);
+      _parent->set_new_symbol(function);
+    } else {
+      throw std::string("conflicting definition for '" + function->name() + "'");
+    }
+  } else {
+    _symtab.insert(function->name(), function);
+    _parent->set_new_symbol(function);
+  }
 }
 
 void fir::type_checker::do_function_definition_node(fir::function_definition_node *const node, int lvl) {
@@ -371,7 +406,7 @@ void fir::type_checker::do_function_definition_node(fir::function_definition_nod
 
   _inBlockReturnType = nullptr;
 
-  auto function = fir::make_symbol(node->qualifier(), node->type(), id, false, true, 0, true);
+  auto function = fir::make_symbol(node->qualifier(), node->type(), id, false, true, 0);
 
   if (node->arguments()) {
     std::vector <std::shared_ptr<cdk::basic_type>> argtypes;
@@ -382,9 +417,11 @@ void fir::type_checker::do_function_definition_node(fir::function_definition_nod
 
   std::shared_ptr<fir::symbol> previous = _symtab.find(function->name());
   if (previous) {
-    if (previous->forward()
+    if (true /* previous->forward()
         && ((previous->qualifier() == tPUBLIC && node->qualifier() == tPUBLIC)
-            || (previous->qualifier() == tPRIVATE && node->qualifier() == tPRIVATE))) {
+            || (previous->qualifier() == tPRIVATE && node->qualifier() == tPRIVATE)) */
+            // TODO
+    ) {
       _symtab.replace(function->name(), function);
       _parent->set_new_symbol(function);
     } else {

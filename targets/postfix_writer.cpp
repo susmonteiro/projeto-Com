@@ -526,7 +526,18 @@ void fir::postfix_writer::do_variable_declaration_node(fir::variable_declaration
 //---------------------------------------------------------------------------
 
 void fir::postfix_writer::do_function_declaration_node(fir::function_declaration_node * const node, int lvl) {
-  // TODO
+  ASSERT_SAFE_EXPRESSIONS;
+
+  if (_inFunctionBody || _inFunctionArgs) { // FIXME really needed?
+    error(node->lineno(), "cannot define function in body or in arguments");
+    return;
+  }
+
+  if (!new_symbol()) return;
+
+  auto function = new_symbol();
+  _functions_to_declare.insert(function->name());
+  reset_new_symbol();
 }
 
 void fir::postfix_writer::do_function_definition_node(fir::function_definition_node * const node, int lvl) {
@@ -546,36 +557,6 @@ void fir::postfix_writer::do_function_definition_node(fir::function_definition_n
 
   _offset = 8;
 
-  /* if (node->return_value()) {
-    node->return_value()->accept(this, 0);
-    _pf.LOCAL(0);
-    if (_function->type()->name() == cdk::TYPE_DOUBLE) {
-      _pf.STDOUBLE();
-      _offset += 8;
-    } else {
-      _pf.STINT();
-      _offset += 4;
-    }
-  } */
-
-  /* if (_function->type()->name() == cdk::TYPE_DOUBLE) {
-    _offset = 16;
-    if (node->return_value()) {
-      node->return_value()->accept(this, 0);
-      _pf.LOCAL(0);
-      _pf.STDOUBLE();
-    }
-  } else {
-    _offset = 12;
-    if (node->return_value()) {
-      node->return_value()->accept(this, 0);
-      _pf.LOCAL(0);
-      _pf.STINT();
-    }
-  } */
-
-  // TODO better way to do this?
-
   _symtab.push(); // scope of args
 
   if (node->arguments()) {
@@ -593,15 +574,6 @@ void fir::postfix_writer::do_function_definition_node(fir::function_definition_n
   if (node->qualifier() == tPUBLIC) _pf.GLOBAL(_function->name(), _pf.FUNC());
   _pf.LABEL(_function->name());
 
-  /* auto id = node->identifier();
-
-  auto var = new_symbol();
-  if (var) {
-    var->set_offset(offset);
-    reset_new_symbol();
-  } */
-
-  // int local_offset = node->type()->size();
   auto var = new fir::variable_declaration_node(node->lineno(), tPRIVATE, node->type(), node->identifier(), node->return_value());
 
   // compute stack size to be reserved for local variables
