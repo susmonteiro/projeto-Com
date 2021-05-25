@@ -608,8 +608,10 @@ void fir::postfix_writer::do_function_definition_node(fir::function_definition_n
   _pf.LABEL(_currentBodyRetLabel);
   
   if (node->epilogue()) {
+    _currentBodyRetLabel = mklbl(++_lbl);
     os() << "        ;; epilogue " << std::endl;
     node->epilogue()->accept(this, lvl + 4); // block has its own scope
+    _pf.LABEL(_currentBodyRetLabel);
   }
   
   if (node->prologue()) {
