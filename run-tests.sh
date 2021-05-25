@@ -16,14 +16,14 @@ for f in *.fir; do
 
     if ../fir --target asm $f && yasm -felf32 "${f%.*}.asm" && ld -melf_i386 -o test_fir "${f%.*}.o" -lrts ; then
     	compiled=$(($compiled+1))
-	./test_fir | tr -d "\n" > "${f%.*}.out"
+	    timeout 1 ./test_fir | tr -d "\n" > "${f%.*}.out"
         #if ! ./test_fir > "${f%.*}.out" ; then
         #    echo "$f execution error"
         if [ -z "$(diff -wBb "${f%.*}.out" "expected/${f%.*}.out" || echo xixi)" ]; then
-	    echo "$f ${GREEN}passed${NC}"
+            echo "$f ${GREEN}passed${NC}"
             passed=$(($passed+1))
         else
-	    echo "$f ${RED}failed${NC}"
+	        echo "$f ${RED}failed${NC}"
         fi
 
         rm "${f%.*}.out" &> /dev/null

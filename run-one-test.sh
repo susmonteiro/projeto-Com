@@ -10,7 +10,7 @@ cp $1 .
 f=$(basename $1)
 
 if ./fir --target asm $f && yasm -felf32 "${f%.*}.asm" && ld -melf_i386 -o test_fir "${f%.*}.o" -lrts ; then
-    ./test_fir | sed 's/\n//g' > "${f%.*}.out"
+    ./test_fir | tr -d "\n" > "${f%.*}.out"
 
     DIFF=$(diff -wBb "${f%.*}.out" "tests/expected/${f%.*}.out")
 
