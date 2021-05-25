@@ -148,7 +148,9 @@ void fir::frame_size_calculator::do_variable_declaration_node(fir::variable_decl
 }
 
 void fir::frame_size_calculator::do_function_definition_node(fir::function_definition_node *const node, int lvl) {
-  node->block()->accept(this, lvl + 2);
+  if (node->prologue()) node->prologue()->accept(this, lvl + 2);
+  if (node->block()) node->block()->accept(this, lvl + 2);
+  if (node->epilogue()) node->epilogue()->accept(this, lvl + 2);
 }
 
 void fir::frame_size_calculator::do_sizeof_node(fir::sizeof_node *const node, int lvl) {
