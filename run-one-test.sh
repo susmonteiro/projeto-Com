@@ -16,7 +16,7 @@ if ./fir --target asm $f && yasm -felf32 "${f%.*}.asm" && ld -melf_i386 -o test_
 
     if [ -z "$DIFF" ]; then
         echo "${GREEN}passed${NC}"
-            passed=$(($passed+f))
+        passed=$(($passed+f))
     else
         echo "${RED}failed${NC}"
         echo "$DIFF"
