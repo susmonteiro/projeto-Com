@@ -299,7 +299,9 @@ void fir::type_checker::do_if_else_node(fir::if_else_node *const node, int lvl) 
 //---------------------------------------------------------------------------
 
 void fir::type_checker::do_sizeof_node(fir::sizeof_node *const node, int lvl) {
-  // TODO
+  ASSERT_UNSPEC;
+  node->argument()->accept(this, lvl + 2);
+  node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
 }
 
 //---------------------------------------------------------------------------
@@ -315,7 +317,8 @@ void fir::type_checker::do_restart_node(fir::restart_node *const node, int lvl) 
 //---------------------------------------------------------------------------
 
 void fir::type_checker::do_return_node(fir::return_node *const node, int lvl) {
-  // TODO
+  // EMPTY
+  // return value saved in var so no need to check the value
 }
 
 //---------------------------------------------------------------------------

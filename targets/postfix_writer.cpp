@@ -369,7 +369,8 @@ void fir::postfix_writer::do_if_else_node(fir::if_else_node * const node, int lv
 //---------------------------------------------------------------------------
 
 void fir::postfix_writer::do_sizeof_node(fir::sizeof_node * const node, int lvl) {
-  // TODO
+  ASSERT_SAFE_EXPRESSIONS;
+  _pf.INT(node->argument()->type()->size());
 }
 
 //---------------------------------------------------------------------------
@@ -576,7 +577,8 @@ void fir::postfix_writer::do_function_definition_node(fir::function_definition_n
   _pf.ALIGN();
   if (node->qualifier() == tPUBLIC) _pf.GLOBAL(_function->name(), _pf.FUNC());
   _pf.LABEL(_function->name());
-
+  
+  // TODO void functions
   auto var = new fir::variable_declaration_node(node->lineno(), tPRIVATE, node->type(), node->identifier(), node->return_value());
 
   // compute stack size to be reserved for local variables
@@ -607,6 +609,27 @@ void fir::postfix_writer::do_function_definition_node(fir::function_definition_n
     _symtab.pop();  // exit prologue scope
   }
   _inFunctionBody = false;
+  _returnSeen = false;  // TODO needed?
+
+  // TODO should this be done somewhere else?
+  // return_value
+  auto _variable = _symtab.find(var->identifier());
+  if (_function->type()->name() != cdk::TYPE_VOID) {
+      _pf.LOCAL(_variable->offset());
+
+    if (_function->type()->name() == cdk::TYPE_INT || _function->type()->name() == cdk::TYPE_STRING
+        || _function->type()->name() == cdk::TYPE_POINTER) {
+      _pf.LDINT();
+      _pf.STFVAL32();
+    } else if (_function->type()->name() == cdk::TYPE_DOUBLE) {
+      _pf.LDDOUBLE();
+      _pf.STFVAL64();
+    } else {
+      error(node->lineno(), ": should not happen: unknown return type");
+    }
+  }
+
+  _returnSeen = true;
 
   _pf.LEAVE();
   _pf.RET();
