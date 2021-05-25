@@ -251,20 +251,23 @@ void fir::postfix_writer::do_rvalue_node(cdk::rvalue_node * const node, int lvl)
 
 void fir::postfix_writer::do_assignment_node(cdk::assignment_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
+
   node->rvalue()->accept(this, lvl); // determine the new value
-  _pf.DUP32();
-  if (new_symbol() == nullptr) {
-    node->lvalue()->accept(this, lvl); // where to store the value
+
+  if (node->type()->name() == cdk::TYPE_DOUBLE) {
+    if (node->rvalue()->type()->name() == cdk::TYPE_INT) _pf.I2D();
+    _pf.DUP64();
   } else {
-    _pf.DATA(); // variables are all global and live in DATA
-    _pf.ALIGN(); // make sure we are aligned
-    _pf.LABEL(new_symbol()->name()); // name variable location
-    reset_new_symbol();
-    _pf.SINT(0); // initialize it to 0 (zero)
-    _pf.TEXT(); // return to the TEXT segment
-    node->lvalue()->accept(this, lvl);  //DAVID: bah!
+    _pf.DUP32();
   }
-  _pf.STINT(); // store the value at address
+
+  if (new_symbol() == nullptr) node->lvalue()->accept(this, lvl); // TODO not necessary? 
+
+  if (node->type()->name() == cdk::TYPE_DOUBLE) {
+    _pf.STDOUBLE();
+  } else {
+    _pf.STINT();
+  }
 }
 
 
