@@ -20,9 +20,11 @@ void fir::type_checker::do_sequence_node(cdk::sequence_node *const node, int lvl
 void fir::type_checker::do_nil_node(cdk::nil_node *const node, int lvl) {
   // EMPTY
 }
+
 void fir::type_checker::do_data_node(cdk::data_node *const node, int lvl) {
   // EMPTY
 }
+
 void fir::type_checker::do_not_node(cdk::not_node *const node, int lvl) {
   ASSERT_UNSPEC;
   
@@ -61,6 +63,16 @@ void fir::type_checker::do_string_node(cdk::string_node *const node, int lvl) {
 
 //---------------------------------------------------------------------------
 
+void fir::type_checker::do_identity_node(fir::identity_node *const node, int lvl) {
+  processUnaryExpression(node, lvl);
+}
+
+void fir::type_checker::do_neg_node(cdk::neg_node *const node, int lvl) {
+  processUnaryExpression(node, lvl);
+}
+
+//---------------------------------------------------------------------------
+
 void fir::type_checker::processUnaryExpression(cdk::unary_operation_node *const node, int lvl) {
   ASSERT_UNSPEC;
   node->argument()->accept(this, lvl + 2);
@@ -71,12 +83,6 @@ void fir::type_checker::processUnaryExpression(cdk::unary_operation_node *const 
   else
     throw std::string("wrong type in argument of unary expression");
 }
-
-void fir::type_checker::do_neg_node(cdk::neg_node *const node, int lvl) {
-  processUnaryExpression(node, lvl);
-}
-
-//---------------------------------------------------------------------------
 
 void fir::type_checker::processIntegerBinaryExpression(cdk::binary_operation_node *const node, int lvl) {
   ASSERT_UNSPEC;
@@ -160,18 +166,7 @@ void fir::type_checker::processGeneralLogicExpression(cdk::binary_operation_node
   node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
 }
 
-void fir::type_checker::processBinaryExpression(cdk::binary_operation_node *const node, int lvl) {
-  ASSERT_UNSPEC;
-  node->left()->accept(this, lvl + 2);
-  if (!node->left()->is_typed(cdk::TYPE_INT)) throw std::string("wrong type in left argument of binary expression");
-
-  node->right()->accept(this, lvl + 2);
-  if (!node->right()->is_typed(cdk::TYPE_INT)) throw std::string("wrong type in right argument of binary expression");
-
-  // in Simple, expressions are always int
-  node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
-  // TODO apagar?
-}
+//---------------------------------------------------------------------------
 
 void fir::type_checker::do_add_node(cdk::add_node *const node, int lvl) {
   processPIDBinaryExpression(node, lvl);
@@ -517,16 +512,13 @@ void fir::type_checker::do_address_of_node(fir::address_of_node *const node, int
 void fir::type_checker::do_index_node(fir::index_node *const node, int lvl) {
   ASSERT_UNSPEC;
   
-  std::shared_ptr < cdk::reference_type > btype;
+  std::shared_ptr<cdk::reference_type> btype;
 
   if (node->base()) {
     node->base()->accept(this, lvl + 2);
     btype = cdk::reference_type::cast(node->base()->type());
     if (!node->base()->is_typed(cdk::TYPE_POINTER)) throw std::string("pointer expression expected in index left-value");
-  }/* else {
-    btype = cdk::reference_type::cast(_function->type());
-    if (!_function->is_typed(cdk::TYPE_POINTER)) throw std::string("return pointer expression expected in index left-value");
-  } */ // TODO
+  }
 
   node->index()->accept(this, lvl + 2);
   if (!node->index()->is_typed(cdk::TYPE_INT)) throw std::string("integer expression expected in left-value index");
@@ -542,14 +534,10 @@ void fir::type_checker::do_stack_alloc_node(fir::stack_alloc_node *const node, i
   if (!node->argument()->is_typed(cdk::TYPE_INT)) {
     throw std::string("integer expression expected in allocation expression");
   }
-  // TODO check me
+
   node->type(cdk::reference_type::create(4, _lvalue_type));
 }
 
 void fir::type_checker::do_prologue_node(fir::prologue_node *const node, int lvl) {
   // EMPTY
-}
-
-void fir::type_checker::do_identity_node(fir::identity_node *const node, int lvl) {
-  processUnaryExpression(node, lvl);
 }
