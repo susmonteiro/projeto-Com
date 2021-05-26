@@ -446,7 +446,9 @@ void fir::type_checker::do_function_definition_node(fir::function_definition_nod
     _parent->set_new_symbol(function);
   }
 
-  // TODO check if there's at least 1 prologue, body or epilogue
+  if (!node->prologue() && !node->block() && !node->epilogue()) {
+    throw std::string("at least one of the parts is needed");
+  }
 }
 
 void fir::type_checker::do_function_call_node(fir::function_call_node *const node, int lvl) {
