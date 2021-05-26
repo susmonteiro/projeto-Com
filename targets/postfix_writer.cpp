@@ -108,7 +108,7 @@ void fir::postfix_writer::do_add_node(cdk::add_node * const node, int lvl) {
   node->left()->accept(this, lvl);
   if (node->type()->name() == cdk::TYPE_DOUBLE && node->left()->type()->name() == cdk::TYPE_INT) {
     _pf.I2D();
-  } else if (node->type()->name() == cdk::TYPE_POINTER) {
+  } else if (node->type()->name() == cdk::TYPE_POINTER && node->left()->type()->name() == cdk::TYPE_INT) {
     // TODO check thiiiis
     _pf.INT(3);
     _pf.SHTL();
@@ -607,10 +607,6 @@ void fir::postfix_writer::do_function_definition_node(fir::function_definition_n
         error(node->lineno(), "cannot initialize return value");
       }
     } 
-
-  if (!node->prologue() && !node->block() && !node->epilogue()) {
-    error(node->lineno(), "at least one of the parts is needed");
-  }
 
   if (node->prologue()) {
     _prologue = true;

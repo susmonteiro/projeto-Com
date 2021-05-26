@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/zsh
 
 make &> /dev/null || exit 1
 
