@@ -316,9 +316,7 @@ void fir::postfix_writer::do_print_node(fir::print_node * const node, int lvl) {
 //---------------------------------------------------------------------------
 
 void fir::postfix_writer::do_read_node(fir::read_node * const node, int lvl) {
-  ASSERT_SAFE_EXPRESSIONS;
-
-  // std::cout << "read_node_pf" << node->type() << std::endl;
+  //ASSERT_SAFE_EXPRESSIONS;  // TODO check this not needed right?
   
   if (node->type()->name() == cdk::TYPE_DOUBLE) {
     _functions_to_declare.insert("readd");
