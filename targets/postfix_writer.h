@@ -23,7 +23,7 @@ namespace fir {
     bool _prologue = false;
     std::stack<int> _whileIni, _whileEnd; // while break/repeat
     std::shared_ptr<fir::symbol> _function;     // for keeping track of the current function and its arguments
-    int _offset;                            // current framepointer offset (0 means no vars defined)
+    int _offset;
 
     std::string _currentBodyRetLabel; // where to jump when a return occurs of an exclusive section ends
 

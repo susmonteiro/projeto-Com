@@ -316,11 +316,21 @@ void fir::postfix_writer::do_print_node(fir::print_node * const node, int lvl) {
 //---------------------------------------------------------------------------
 
 void fir::postfix_writer::do_read_node(fir::read_node * const node, int lvl) {
-  /* ASSERT_SAFE_EXPRESSIONS;
-  _pf.CALL("readi");
-  _pf.LDFVAL32();
-  node->argument()->accept(this, lvl);
-  _pf.STINT(); */
+  ASSERT_SAFE_EXPRESSIONS;
+
+  // std::cout << "read_node_pf" << node->type() << std::endl;
+  
+  if (node->type()->name() == cdk::TYPE_DOUBLE) {
+    _functions_to_declare.insert("readd");
+    _pf.CALL("readd");
+    _pf.LDFVAL64();
+  } else if (node->type()->name() == cdk::TYPE_INT) {
+    _functions_to_declare.insert("readi");
+    _pf.CALL("readi");
+    _pf.LDFVAL32();
+  } else {
+    error(node->lineno(), "cannot read type");
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -382,44 +392,33 @@ void fir::postfix_writer::do_sizeof_node(fir::sizeof_node * const node, int lvl)
 void fir::postfix_writer::do_leave_node(fir::leave_node * const node, int lvl) {
   
   std::stack<int> aux;
+  aux = _whileEnd;
   
   for (int i = 0; i < node->level() - 1; i++) {
     if (_whileIni.size() != 0) {
-      aux.push(_whileEnd.top());
-      _whileEnd.pop();
+      aux.pop();
     } else {
       error(node->lineno(), "'leave' outside while");
     }
   }
 
-  _pf.JMP(mklbl(_whileEnd.top())); // jump to while end
-
-  for (int i = 0; i < node->level() - 1; i++) {
-    _whileEnd.push(aux.top());
-    aux.pop();
-  }
-
-  // TODO sketchy. Better way?
+  _pf.JMP(mklbl(aux.top())); // jump to while end
 }
 
 void fir::postfix_writer::do_restart_node(fir::restart_node * const node, int lvl) {
+
   std::stack<int> aux;
+  aux = _whileIni;
 
   for (int i = 0; i < node->level() - 1; i++) {
     if (_whileIni.size() != 0) {
-      aux.push(_whileIni.top());
-      _whileIni.pop();
+      aux.pop();
     } else {
       error(node->lineno(), "'leave' outside while");
     }
   }
 
-  _pf.JMP(mklbl(_whileIni.top())); // jump to while end
-
-  for (int i = 0; i < node->level() - 1; i++) {
-    _whileIni.push(aux.top());
-    aux.pop();
-  }
+  _pf.JMP(mklbl(aux.top())); // jump to while end
 
   // TODO sketchy. Better way?
 }

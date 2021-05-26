@@ -1,3 +1,4 @@
+#include <cdk/types/typename_type.h>
 #include <string>
 #include "targets/type_checker.h"
 #include "ast/all.h"  // automatically generated
@@ -271,17 +272,16 @@ void fir::type_checker::do_evaluation_node(fir::evaluation_node *const node, int
 }
 
 void fir::type_checker::do_print_node(fir::print_node *const node, int lvl) {
+  _lvalue_type = cdk::primitive_type::create(4, cdk::TYPE_INT);
+  std::cout << "xixi" << _lvalue_type << std::endl;
   node->arguments()->accept(this, lvl + 2);
 }
 
 //---------------------------------------------------------------------------
 
 void fir::type_checker::do_read_node(fir::read_node *const node, int lvl) {
-  /* try {
-    node->argument()->accept(this, lvl);
-  } catch (const std::string &id) {
-    throw "undeclared variable '" + id + "'";
-  } */
+  std::cout << "coco" << _lvalue_type << std::endl;
+  node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
 }
 
 //---------------------------------------------------------------------------
@@ -322,7 +322,6 @@ void fir::type_checker::do_restart_node(fir::restart_node *const node, int lvl) 
 
 void fir::type_checker::do_return_node(fir::return_node *const node, int lvl) {
   // EMPTY
-  // return value saved in var so no need to check the value
 }
 
 //---------------------------------------------------------------------------
@@ -540,6 +539,7 @@ void fir::type_checker::do_index_node(fir::index_node *const node, int lvl) {
 
 void fir::type_checker::do_stack_alloc_node(fir::stack_alloc_node *const node, int lvl) {
   ASSERT_UNSPEC;
+
   node->argument()->accept(this, lvl + 2);
   if (!node->argument()->is_typed(cdk::TYPE_INT)) {
     throw std::string("integer expression expected in allocation expression");
