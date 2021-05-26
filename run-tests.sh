@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/zsh
 
 total=0
 passed=0
