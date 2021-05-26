@@ -14,14 +14,17 @@
 
 %x X_TILDE
 %x X_STRING
-%x X_OCTAL_INT
+%x X_COMMENT
 %%
 
   /* === COMMENTS === */
-                       /* { yydebug = 1; set_debug(true); } */
 
+                        /* { yydebug = 1; set_debug(true); } */
 "!!".*                 ;
-"(*"(.|\n)*"*)"        ; 
+
+"(*"                   yy_push_state(X_COMMENT);
+<X_COMMENT>"*)"        yy_pop_state();
+<X_COMMENT>.|"\n"      ;  /* ignore inside comments */
 
   /* === DATA TYPES === */
 
