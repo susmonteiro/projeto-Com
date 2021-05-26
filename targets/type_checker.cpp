@@ -357,7 +357,7 @@ void fir::type_checker::do_variable_declaration_node(fir::variable_declaration_n
   }
 
   const std::string &id = node->identifier();
-  auto symbol = fir::make_symbol(node->qualifier(), node->type(), id, (bool)node->initializer(), false, 0, false);
+  auto symbol = fir::make_symbol(node->qualifier(), node->type(), id, (bool)node->initializer(), false, 0);
 
   if (_symtab.insert(id, symbol)) {
     _parent->set_new_symbol(symbol);
@@ -420,7 +420,7 @@ void fir::type_checker::do_function_definition_node(fir::function_definition_nod
 
   _inBlockReturnType = nullptr;
 
-  auto function = fir::make_symbol(node->qualifier(), node->type(), id, false, true, 0);
+  auto function = fir::make_symbol(node->qualifier(), node->type(), id, (bool)node->return_value(), true, 0);
 
   if (node->arguments()) {
     std::vector <std::shared_ptr<cdk::basic_type>> argtypes;
@@ -444,6 +444,35 @@ void fir::type_checker::do_function_definition_node(fir::function_definition_nod
   } else {
     _symtab.insert(function->name(), function);
     _parent->set_new_symbol(function);
+  }
+
+  if (node->type()->name() == cdk::TYPE_VOID && node->return_value()) {
+    throw std::string("cannot specify return_value for a void function");
+  } 
+
+  if (node->return_value()) {
+    node->return_value()->accept(this, lvl + 2);
+
+    if (node->is_typed(cdk::TYPE_INT)) {
+      if (!node->return_value()->is_typed(cdk::TYPE_INT))
+        throw std::string("wrong type for return_value (integer expected).");
+    } else if (node->is_typed(cdk::TYPE_DOUBLE)) {
+      if (!node->return_value()->is_typed(cdk::TYPE_INT) && !node->return_value()->is_typed(cdk::TYPE_DOUBLE))
+        throw std::string("wrong type for return_value (integer or double expected).");
+    } else if (node->is_typed(cdk::TYPE_STRING)) {
+      if (!node->return_value()->is_typed(cdk::TYPE_STRING)) {
+        throw std::string("wrong type for return_value (string expected).");
+      }
+    } else if (node->is_typed(cdk::TYPE_POINTER)) {
+      if (!node->return_value()->is_typed(cdk::TYPE_POINTER)) {
+        throw std::string("wrong type for return_value (pointer expected).");
+        // TODO check nullptr case
+      }
+    } else {
+      throw std::string("unknown type for return_value.");
+    }
+  } else {
+    // TODO initialize ints and pointers
   }
 
   // TODO check if there's at least 1 prologue, body or epilogue

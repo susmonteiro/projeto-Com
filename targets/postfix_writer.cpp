@@ -575,21 +575,38 @@ void fir::postfix_writer::do_function_definition_node(fir::function_definition_n
   _pf.ALIGN();
   if (node->qualifier() == tPUBLIC) _pf.GLOBAL(_function->name(), _pf.FUNC());
   _pf.LABEL(_function->name());
-  
-  // TODO void functions
-  auto var = new fir::variable_declaration_node(node->lineno(), tPRIVATE, node->type(), node->identifier(), node->return_value());
+
+
+  int typesize = node->type()->size(); // in bytes
+
 
   // compute stack size to be reserved for local variables
   frame_size_calculator lsc(_compiler, _symtab, _function);
   node->accept(&lsc, lvl);
-  _pf.ENTER(lsc.localsize() + var->type()->size()); // total stack size reserved for local variables
+  _pf.ENTER(lsc.localsize() + typesize); // total stack size reserved for local variables
 
   _offset = 0; // prepare for local variable
 
   _inFunctionBody = true;
 
+  // declare return variable
+  _offset -= typesize;
+  _function->set_offset(_offset);
   // initialize return variable
-  var->accept(this, 0);
+  if (node->return_value()) {
+      node->return_value()->accept(this, lvl);
+      if (node->is_typed(cdk::TYPE_INT) || node->is_typed(cdk::TYPE_STRING) || node->is_typed(cdk::TYPE_POINTER)) {
+        _pf.LOCAL(_function->offset());
+        _pf.STINT();
+      } else if (node->is_typed(cdk::TYPE_DOUBLE)) {
+        if (node->return_value()->is_typed(cdk::TYPE_INT))
+          _pf.I2D();
+        _pf.LOCAL(_function->offset());
+        _pf.STDOUBLE();
+      } else {
+        error(node->lineno(), "cannot initialize return value");
+      }
+    } 
 
   if (!node->prologue() && !node->block() && !node->epilogue()) {
     error(node->lineno(), "at least one of the parts is needed");
@@ -624,9 +641,8 @@ void fir::postfix_writer::do_function_definition_node(fir::function_definition_n
 
   // TODO should this be done somewhere else?
   // return_value
-  auto _variable = _symtab.find(var->identifier());
   if (_function->type()->name() != cdk::TYPE_VOID) {
-      _pf.LOCAL(_variable->offset());
+      _pf.LOCAL(_function->offset());
 
     if (_function->type()->name() == cdk::TYPE_INT || _function->type()->name() == cdk::TYPE_STRING
         || _function->type()->name() == cdk::TYPE_POINTER) {
