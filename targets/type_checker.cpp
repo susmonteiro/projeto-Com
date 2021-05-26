@@ -84,21 +84,18 @@ void fir::type_checker::processUnaryExpression(cdk::unary_operation_node *const 
     throw std::string("wrong type in argument of unary expression");
 }
 
-void fir::type_checker::processIntegerBinaryExpression(cdk::binary_operation_node *const node, int lvl) {
-  ASSERT_UNSPEC;
-  node->left()->accept(this, lvl + 2);
-  if (!node->left()->is_typed(cdk::TYPE_INT)) throw std::string("wrong type in left argument of binary expression");
+  void fir::type_checker::processIntegerBinaryExpression(cdk::binary_operation_node *const node, int lvl) {
+    ASSERT_UNSPEC;
+    node->left()->accept(this, lvl + 2);
+    if (!node->left()->is_typed(cdk::TYPE_INT)) throw std::string("wrong type in left argument of binary expression");
 
-  node->right()->accept(this, lvl + 2);
-  if (!node->right()->is_typed(cdk::TYPE_INT)) throw std::string("wrong type in right argument of binary expression");
+    node->right()->accept(this, lvl + 2);
+    if (!node->right()->is_typed(cdk::TYPE_INT)) throw std::string("wrong type in right argument of binary expression");
 
-  node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
-}
+    node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
+  }
 
 void fir::type_checker::processPIDBinaryExpression(cdk::binary_operation_node *const node, int lvl) {
-  ASSERT_UNSPEC;
-  node->left()->accept(this, lvl + 2);
-  node->right()->accept(this, lvl + 2);
 
   if (node->left()->is_typed(cdk::TYPE_DOUBLE) && node->right()->is_typed(cdk::TYPE_DOUBLE)) {
     node->type(cdk::primitive_type::create(8, cdk::TYPE_DOUBLE));
@@ -110,8 +107,6 @@ void fir::type_checker::processPIDBinaryExpression(cdk::binary_operation_node *c
     node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
   } else if (node->left()->is_typed(cdk::TYPE_POINTER) && node->right()->is_typed(cdk::TYPE_INT)) {
     node->type(node->left()->type());
-  } else if (node->left()->is_typed(cdk::TYPE_INT) && node->right()->is_typed(cdk::TYPE_POINTER)) {
-    node->type(node->right()->type());
   } else {
     throw std::string("wrong types in binary expression");
   }
@@ -169,10 +164,27 @@ void fir::type_checker::processGeneralLogicExpression(cdk::binary_operation_node
 //---------------------------------------------------------------------------
 
 void fir::type_checker::do_add_node(cdk::add_node *const node, int lvl) {
-  processPIDBinaryExpression(node, lvl);
+  ASSERT_UNSPEC;
+  node->left()->accept(this, lvl + 2);
+  node->right()->accept(this, lvl + 2);
+  // only possible in add
+  if (node->left()->is_typed(cdk::TYPE_INT) && node->right()->is_typed(cdk::TYPE_POINTER)) {
+    node->type(node->right()->type());
+  } else {
+    processPIDBinaryExpression(node, lvl);
+  }
 }
 void fir::type_checker::do_sub_node(cdk::sub_node *const node, int lvl) {
-  processPIDBinaryExpression(node, lvl);
+  ASSERT_UNSPEC;
+  node->left()->accept(this, lvl + 2);
+  node->right()->accept(this, lvl + 2);
+  // only possible in sub
+  if (node->left()->is_typed(cdk::TYPE_POINTER) && node->right()->is_typed(cdk::TYPE_POINTER)) {
+    node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
+  } else {
+    processPIDBinaryExpression(node, lvl);
+  }
+
 }
 void fir::type_checker::do_mul_node(cdk::mul_node *const node, int lvl) {
   processIDBinaryExpression(node, lvl);
@@ -231,9 +243,9 @@ void fir::type_checker::do_assignment_node(cdk::assignment_node *const node, int
   ASSERT_UNSPEC;
 
   node->lvalue()->accept(this, lvl + 4);
-  node->rvalue()->accept(this, lvl + 4);
-
   _lvalue_type = node->lvalue()->type();
+  
+  node->rvalue()->accept(this, lvl + 4);
 
   if (node->lvalue()->is_typed(cdk::TYPE_INT) && node->rvalue()->is_typed(cdk::TYPE_INT)) {
       node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
@@ -327,6 +339,9 @@ void fir::type_checker::do_block_node(fir::block_node *const node, int lvl) {
 //---------------------------------------------------------------------------
 
 void fir::type_checker::do_variable_declaration_node(fir::variable_declaration_node *const node, int lvl) {
+
+  _lvalue_type = node->type();
+
   if (node->initializer() != nullptr) {
     node->initializer()->accept(this, lvl + 2);
 
@@ -480,8 +495,9 @@ void fir::type_checker::do_function_call_node(fir::function_call_node *const nod
   auto symbol = _symtab.find(id);
   if (symbol == nullptr) throw std::string("symbol '" + id + "' is undeclared.");
   if (!symbol->isFunction()) throw std::string("symbol '" + id + "' is not a function.");
-  // TODO type_struct?
+
   node->type(symbol->type());
+  
   if (node->arguments()) {
     if (node->arguments()->size() == symbol->number_of_arguments()) {
       node->arguments()->accept(this, lvl + 4);

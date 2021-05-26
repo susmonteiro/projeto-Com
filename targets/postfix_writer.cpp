@@ -113,16 +113,24 @@ void fir::postfix_writer::do_add_node(cdk::add_node * const node, int lvl) {
   if (node->type()->name() == cdk::TYPE_DOUBLE && node->left()->type()->name() == cdk::TYPE_INT) {
     _pf.I2D();
   } else if (node->type()->name() == cdk::TYPE_POINTER && node->left()->type()->name() == cdk::TYPE_INT) {
-    // TODO check thiiiis
-    _pf.INT(3);
+    if (cdk::reference_type::cast(node->type())->referenced()->name() == cdk::TYPE_DOUBLE) {
+      _pf.INT(3);
+    } else {
+      _pf.INT(2);
+    }
     _pf.SHTL();
   }
+
 
   node->right()->accept(this, lvl + 2);
   if (node->type()->name() == cdk::TYPE_DOUBLE && node->right()->type()->name() == cdk::TYPE_INT) {
     _pf.I2D();
   } else if (node->type()->name() == cdk::TYPE_POINTER && node->right()->type()->name() == cdk::TYPE_INT) {
-    _pf.INT(3);
+    if (cdk::reference_type::cast(node->type())->referenced()->name() == cdk::TYPE_DOUBLE) {
+      _pf.INT(3);
+    } else {
+      _pf.INT(2);
+    }
     _pf.SHTL();
   }
 
@@ -142,7 +150,11 @@ void fir::postfix_writer::do_sub_node(cdk::sub_node * const node, int lvl) {
   if (node->type()->name() == cdk::TYPE_DOUBLE && node->right()->type()->name() == cdk::TYPE_INT) {
     _pf.I2D();
   } else if (node->type()->name() == cdk::TYPE_POINTER && node->right()->type()->name() == cdk::TYPE_INT) {
-    _pf.INT(3);
+    if (cdk::reference_type::cast(node->type())->referenced()->name() == cdk::TYPE_DOUBLE) {
+      _pf.INT(3);
+    } else {
+      _pf.INT(2);
+    }
     _pf.SHTL();
   }
 
@@ -730,15 +742,27 @@ void fir::postfix_writer::do_index_node(fir::index_node *const node, int lvl) {
     }
   }
   node->index()->accept(this, lvl);
-  _pf.INT(3);
+  if (cdk::reference_type::cast(node->base()->type())->referenced()->name() == cdk::TYPE_DOUBLE) {
+    _pf.INT(3);
+  } else {
+    _pf.INT(2);
+  }
   _pf.SHTL();
   _pf.ADD(); // add pointer and index
 }
 
 void fir::postfix_writer::do_stack_alloc_node(fir::stack_alloc_node *const node, int lvl) {
-  ASSERT_SAFE_EXPRESSIONS;
+  ASSERT_SAFE_EXPRESSIONS; // TODO check this
   node->argument()->accept(this, lvl);
-  _pf.INT(3); // TODO change this
+
+  std::shared_ptr<cdk::reference_type> btype = cdk::reference_type::cast(node->type());
+
+  // std::cout << cdk::TYPE_DOUBLE << "\t" << cdk::reference_type::cast(btype->referenced())->referenced()->name() << std::endl;  // TODO remove this
+  if (cdk::reference_type::cast(btype->referenced())->referenced()->name() == cdk::TYPE_DOUBLE) {
+    _pf.INT(3);
+  } else {
+    _pf.INT(2);
+  }
   _pf.SHTL();
   _pf.ALLOC(); // allocate
   _pf.SP(); // put base pointer in stack

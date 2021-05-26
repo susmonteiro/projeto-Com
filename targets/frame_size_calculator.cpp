@@ -129,9 +129,9 @@ void fir::frame_size_calculator::do_prologue_node(fir::prologue_node *const node
 }
 
 void fir::frame_size_calculator::do_while_node(fir::while_node *const node, int lvl) {
-  // TODO
-  // node->init()->accept(this, lvl + 2);
-  // node->instruction()->accept(this, lvl + 2);
+  node->condition()->accept(this, lvl + 2);
+  node->block()->accept(this, lvl + 2);
+  if (node->finally_block()) node->finally_block()->accept(this, lvl + 2);
 }
 
 void fir::frame_size_calculator::do_if_node(fir::if_node *const node, int lvl) {
