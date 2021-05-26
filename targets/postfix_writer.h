@@ -55,6 +55,7 @@ namespace fir {
 
     void error(int lineno, std::string s) {
       std::cerr << "error: " << lineno << ": " << s << std::endl;
+      exit(1);
     }
 
   public:
