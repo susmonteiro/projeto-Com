@@ -393,15 +393,14 @@ void fir::type_checker::do_function_declaration_node(fir::function_declaration_n
 
   std::shared_ptr<fir::symbol> previous = _symtab.find(function->name());
   if (previous) {
-    if (true /* previous->forward()
-        && ((previous->qualifier() == tPUBLIC && node->qualifier() == tPUBLIC)
-            || (previous->qualifier() == tPRIVATE && node->qualifier() == tPRIVATE)) */
-    // TODO
+    if (previous->forward() &&
+        ((previous->qualifier() == tPRIVATE && !(node->qualifier() == tPRIVATE)) ||
+         (!(previous->qualifier() == tPRIVATE) && node->qualifier() == tPRIVATE))
     ) {
+      throw std::string("conflicting definition for '" + function->name() + "'");
+    } else {
       _symtab.replace(function->name(), function);
       _parent->set_new_symbol(function);
-    } else {
-      throw std::string("conflicting definition for '" + function->name() + "'");
     }
   } else {
     _symtab.insert(function->name(), function);
@@ -433,15 +432,14 @@ void fir::type_checker::do_function_definition_node(fir::function_definition_nod
 
   std::shared_ptr<fir::symbol> previous = _symtab.find(function->name());
   if (previous) {
-    if (true /* previous->forward()
-        && ((previous->qualifier() == tPUBLIC && node->qualifier() == tPUBLIC)
-            || (previous->qualifier() == tPRIVATE && node->qualifier() == tPRIVATE)) */
-            // TODO
+    if (previous->forward() &&
+        ((previous->qualifier() == tPRIVATE && !(node->qualifier() == tPRIVATE)) ||
+         (!(previous->qualifier() == tPRIVATE) && node->qualifier() == tPRIVATE))
     ) {
+      throw std::string("conflicting definition for '" + function->name() + "'");
+    } else {
       _symtab.replace(function->name(), function);
       _parent->set_new_symbol(function);
-    } else {
-      throw std::string("conflicting definition for '" + function->name() + "'");
     }
   } else {
     _symtab.insert(function->name(), function);
