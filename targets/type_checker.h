@@ -13,6 +13,7 @@ namespace fir {
 
     basic_ast_visitor *_parent;
     std::shared_ptr<cdk::basic_type> _inBlockReturnType = nullptr;
+    std::shared_ptr<cdk::basic_type> _lvalue_type;
 
   public:
     type_checker(std::shared_ptr<cdk::compiler> compiler, cdk::symbol_table<fir::symbol> &symtab, basic_ast_visitor *parent) :

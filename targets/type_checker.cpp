@@ -237,6 +237,8 @@ void fir::type_checker::do_assignment_node(cdk::assignment_node *const node, int
   node->lvalue()->accept(this, lvl + 4);
   node->rvalue()->accept(this, lvl + 4);
 
+  _lvalue_type = node->lvalue()->type();
+
   if (node->lvalue()->is_typed(cdk::TYPE_INT) && node->rvalue()->is_typed(cdk::TYPE_INT)) {
       node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
   } else if (node->lvalue()->is_typed(cdk::TYPE_DOUBLE)) {
@@ -515,7 +517,7 @@ void fir::type_checker::do_stack_alloc_node(fir::stack_alloc_node *const node, i
     throw std::string("integer expression expected in allocation expression");
   }
   // TODO check me
-  node->type(cdk::primitive_type::create(4, cdk::TYPE_POINTER));
+  node->type(cdk::reference_type::create(4, _lvalue_type));
 }
 
 void fir::type_checker::do_prologue_node(fir::prologue_node *const node, int lvl) {
