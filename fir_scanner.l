@@ -88,7 +88,7 @@
 
   /* === REALS === */
 
-([0-9]*\.[0-9]+|[0-9]+\.[0-9]*)([eE][-+]?[0-9]+)? {
+([0-9]+|[0-9]*\.[0-9]+|[0-9]+\.[0-9]*)([eE][-+]?[0-9]+)? {
                                                     try {
                                                       yylval.d = strtod(yytext, NULL); return tREAL;
                                                     } catch (std::out_of_range& e) {

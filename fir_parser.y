@@ -56,12 +56,11 @@
 %type <node> declaration vardec fundef fundec argdec instruction leave restart
 %type <sequence> file declarations opt_vardecs vardecs argdecs opt_instructions instructions opt_exprs exprs     
 %type <expression> opt_init default_value expr integer float  
-%type <type> data_type void_type
+%type <type> data_type
 %type <lvalue> lvalue
-%type <prologue> prologue
-%type <block> body epilogue block
+%type <prologue> opt_prologue prologue
+%type <block> opt_body opt_epilogue epilogue block
 
-  /* %nonassoc tFUNDEC */
 
 %nonassoc tWHILEX
 %nonassoc tFINALLY
@@ -92,7 +91,7 @@ declarations   :              declaration { $$ = new cdk::sequence_node(LINE, $1
                ;
 
 declaration    : vardec ';'           { $$ = $1; }
-               | fundec /* tFUNDEC */ { $$ = $1; }
+               | fundec               { $$ = $1; }
                | fundef               { $$ = $1; }
                ;
 
@@ -108,7 +107,7 @@ vardecs        : vardec ';'          { $$ = new cdk::sequence_node(LINE, $1);   
 
 vardec         : data_type     tIDENTIFIER opt_init   { $$ = new fir::variable_declaration_node(LINE, tPRIVATE, $1, *$2, $3 ); delete $2; }
                | data_type '*' tIDENTIFIER opt_init   { $$ = new fir::variable_declaration_node(LINE, tPUBLIC, $1, *$3, $4 ); delete $3; }
-               | data_type '?' tIDENTIFIER            { $$ = new fir::variable_declaration_node(LINE, tPRIVATE, $1, *$3, nullptr ); delete $3; }
+               | data_type '?' tIDENTIFIER            { $$ = new fir::variable_declaration_node(LINE, tEXTERN, $1, *$3, nullptr ); delete $3; }
                ;
 
 opt_init       : /* empty */         { $$ = nullptr; }
@@ -120,19 +119,26 @@ opt_init       : /* empty */         { $$ = nullptr; }
 fundec         : data_type     tIDENTIFIER '(' argdecs ')' { $$ = new fir::function_declaration_node(LINE, *$2, tPRIVATE, $1, $4); delete $2; }
                | data_type '*' tIDENTIFIER '(' argdecs ')' { $$ = new fir::function_declaration_node(LINE, *$3, tPUBLIC, $1, $5);  delete $3; }
                | data_type '?' tIDENTIFIER '(' argdecs ')' { $$ = new fir::function_declaration_node(LINE, *$3, tEXTERN, $1, $5);  delete $3; }
-               | void_type     tIDENTIFIER '(' argdecs ')' { $$ = new fir::function_declaration_node(LINE, *$2, tPRIVATE, $1, $4); delete $2; }
-               | void_type '*' tIDENTIFIER '(' argdecs ')' { $$ = new fir::function_declaration_node(LINE, *$3, tPUBLIC, $1, $5);  delete $3; }
-               | void_type '?' tIDENTIFIER '(' argdecs ')' { $$ = new fir::function_declaration_node(LINE, *$3, tEXTERN, $1, $5);  delete $3; }
                ;
 
   /* function definitions */
 
-fundef         : data_type     tIDENTIFIER '(' argdecs ')' default_value prologue body epilogue { $$ = new fir::function_definition_node(LINE, *$2, tPRIVATE, $1, $4, $6, $7, $8, $9);  delete $2; }
-               | data_type '*' tIDENTIFIER '(' argdecs ')' default_value prologue body epilogue { $$ = new fir::function_definition_node(LINE, *$3, tPUBLIC,  $1, $5, $7, $8, $9, $10); delete $3; }
-               | data_type     tIDENTIFIER '(' argdecs ')' prologue body epilogue { $$ = new fir::function_definition_node(LINE, *$2, tPRIVATE, $1, $4, $6, $7, $8);  delete $2; }
-               | data_type '*' tIDENTIFIER '(' argdecs ')' prologue body epilogue { $$ = new fir::function_definition_node(LINE, *$3, tPUBLIC,  $1, $5, $7, $8, $9); delete $3; }
-               | void_type     tIDENTIFIER '(' argdecs ')' prologue body epilogue { $$ = new fir::function_definition_node(LINE, *$2, tPRIVATE, $1, $4, $6, $7, $8);  delete $2; }
-               | void_type '*' tIDENTIFIER '(' argdecs ')' prologue body epilogue { $$ = new fir::function_definition_node(LINE, *$3, tPUBLIC,  $1, $5, $7, $8, $9); delete $3; }
+fundef         : data_type     tIDENTIFIER '(' argdecs ')' default_value opt_prologue opt_body opt_epilogue { $$ = new fir::function_definition_node(LINE, *$2, tPRIVATE, $1, $4, $6, $7, $8, $9);  delete $2; }
+               | data_type '*' tIDENTIFIER '(' argdecs ')' default_value opt_prologue opt_body opt_epilogue { $$ = new fir::function_definition_node(LINE, *$3, tPUBLIC,  $1, $5, $7, $8, $9, $10); delete $3; }
+               | data_type     tIDENTIFIER '(' argdecs ')' prologue block epilogue { $$ = new fir::function_definition_node(LINE, *$2, tPRIVATE, $1, $4, $6, $7, $8);  delete $2; }
+               | data_type '*' tIDENTIFIER '(' argdecs ')' prologue block epilogue { $$ = new fir::function_definition_node(LINE, *$3, tPUBLIC,  $1, $5, $7, $8, $9); delete $3; }
+               | data_type     tIDENTIFIER '(' argdecs ')' prologue block          { $$ = new fir::function_definition_node(LINE, *$2, tPRIVATE, $1, $4, $6, $7, nullptr);  delete $2; }
+               | data_type '*' tIDENTIFIER '(' argdecs ')' prologue block          { $$ = new fir::function_definition_node(LINE, *$3, tPUBLIC,  $1, $5, $7, $8, nullptr); delete $3; }
+               | data_type     tIDENTIFIER '(' argdecs ')' prologue       epilogue { $$ = new fir::function_definition_node(LINE, *$2, tPRIVATE, $1, $4, $6, nullptr, $7);  delete $2; }
+               | data_type '*' tIDENTIFIER '(' argdecs ')' prologue       epilogue { $$ = new fir::function_definition_node(LINE, *$3, tPUBLIC,  $1, $5, $7, nullptr, $8); delete $3; }
+               | data_type     tIDENTIFIER '(' argdecs ')'          block epilogue { $$ = new fir::function_definition_node(LINE, *$2, tPRIVATE, $1, $4, nullptr, $6, $7);  delete $2; }
+               | data_type '*' tIDENTIFIER '(' argdecs ')'          block epilogue { $$ = new fir::function_definition_node(LINE, *$3, tPUBLIC,  $1, $5, nullptr, $7, $8); delete $3; }
+               | data_type     tIDENTIFIER '(' argdecs ')' prologue                { $$ = new fir::function_definition_node(LINE, *$2, tPRIVATE, $1, $4, $6, nullptr, nullptr);  delete $2; }
+               | data_type '*' tIDENTIFIER '(' argdecs ')' prologue                { $$ = new fir::function_definition_node(LINE, *$3, tPUBLIC,  $1, $5, $7, nullptr, nullptr); delete $3; }
+               | data_type     tIDENTIFIER '(' argdecs ')'          block          { $$ = new fir::function_definition_node(LINE, *$2, tPRIVATE, $1, $4, nullptr, $6, nullptr);  delete $2; }
+               | data_type '*' tIDENTIFIER '(' argdecs ')'          block          { $$ = new fir::function_definition_node(LINE, *$3, tPUBLIC,  $1, $5, nullptr, $7, nullptr); delete $3; }
+               | data_type     tIDENTIFIER '(' argdecs ')'               epilogue  { $$ = new fir::function_definition_node(LINE, *$2, tPRIVATE, $1, $4, nullptr, nullptr, $6);  delete $2; }
+               | data_type '*' tIDENTIFIER '(' argdecs ')'               epilogue  { $$ = new fir::function_definition_node(LINE, *$3, tPUBLIC,  $1, $5, nullptr, nullptr, $7); delete $3; }
                ;
 
   /* function components */
@@ -152,16 +158,24 @@ default_value  : tDEFAULT_VALUE integer           { $$ = $2; }
                | tDEFAULT_VALUE tNULL             { $$ = new fir::null_node(LINE); }
                ;
 
-prologue       : /* empty */                      { $$ = nullptr; }
-               | '@' block                        { $$ = new fir::prologue_node(LINE, $2); }
+
+
+opt_prologue   : /* empty */                      { $$ = nullptr; }
+               | prologue                         { $$ = $1; }
                ;
 
-body           : /* empty */                       { $$ = nullptr; }
+prologue       : '@' block                        { $$ = new fir::prologue_node(LINE, $2); }
+               ;
+
+opt_body       : /* empty */                       { $$ = nullptr; }
                | block                             { $$ = $1; }
                ;
 
-epilogue       : /* empty */                      { $$ = nullptr; }
-               | tEPILOGUE block                  { $$ = $2; }
+opt_epilogue   : /* empty */                      { $$ = nullptr; }
+               | epilogue                         { $$ = $1; }
+               ;
+
+epilogue       : tEPILOGUE block                  { $$ = $2; }
                ;
 
   /* instructions */
@@ -257,12 +271,8 @@ lvalue         : tIDENTIFIER                                 { $$ = new cdk::var
 data_type      : tTYPE_INT                  { $$ = cdk::primitive_type::create(4, cdk::TYPE_INT);     }
                | tTYPE_FLOAT                { $$ = cdk::primitive_type::create(8, cdk::TYPE_DOUBLE);  }
                | tTYPE_STRING               { $$ = cdk::primitive_type::create(4, cdk::TYPE_STRING);  }
-               | '<' void_type '>'          { $$ = cdk::reference_type::create(4, $2); }
+               | tTYPE_VOID                 { $$ = cdk::primitive_type::create(0, cdk::TYPE_VOID);    }
                | '<' data_type '>'          { $$ = cdk::reference_type::create(4, $2); }
-               ;
-
-
-void_type      : tTYPE_VOID                 { $$ = cdk::primitive_type::create(0, cdk::TYPE_VOID); }
                ;
 
 integer        : tINTEGER                   { $$ = new cdk::integer_node(LINE, $1); };
