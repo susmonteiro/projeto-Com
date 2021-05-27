@@ -21,7 +21,7 @@ namespace fir {
 
   public:
     symbol(int qualifier, std::shared_ptr<cdk::basic_type> type, const std::string &name, bool initialized, bool function, long value, bool forward = false) :
-        _qualifier(qualifier), _type(type), _name(name), _initialized(initialized), _function(function), _value(value), _forward(forward) {
+        _qualifier(qualifier), _type(type), _name(name), _initialized(initialized), _function(function), _forward(forward) {
     }
 
     virtual ~symbol() {
@@ -60,14 +60,6 @@ namespace fir {
       return _function;
     }
 
-    long value() const {
-      return _value;
-    }
-
-    long value(long v) {
-      return _value = v;
-    }
-
     bool forward() const {
       return _forward;
     }
@@ -94,8 +86,8 @@ namespace fir {
   };
 
   inline auto make_symbol(int qualifier, std::shared_ptr<cdk::basic_type> type, const std::string &name,
-                          bool initialized, bool function, long value, bool forward = false) {
-    return std::make_shared<symbol>(qualifier, type, name, initialized, function, value, forward);
+                          bool initialized, bool function, bool forward = false) {
+    return std::make_shared<symbol>(qualifier, type, name, initialized, function, forward);
   }
 
 } // fir

@@ -161,6 +161,22 @@ void fir::type_checker::processGeneralLogicExpression(cdk::binary_operation_node
   node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
 }
 
+void fir::type_checker::checkPointer(std::shared_ptr<cdk::basic_type> lptr, std::shared_ptr<cdk::basic_type> rptr){
+  std::shared_ptr<cdk::basic_type> ltype, rtype;
+
+  ltype = cdk::reference_type::cast(lptr)->referenced();
+  rtype = cdk::reference_type::cast(rptr)->referenced();
+
+  while (ltype->name() == cdk::TYPE_POINTER && rtype->name() == cdk::TYPE_POINTER) {
+    ltype = cdk::reference_type::cast(ltype)->referenced();
+    rtype = cdk::reference_type::cast(rtype)->referenced();
+  }
+
+  if (ltype->name() != rtype->name()) {
+    throw std::string("incompatible pointer types");
+  }
+}
+
 //---------------------------------------------------------------------------
 
 void fir::type_checker::do_add_node(cdk::add_node *const node, int lvl) {
@@ -271,12 +287,10 @@ void fir::type_checker::do_assignment_node(cdk::assignment_node *const node, int
   } else if (node->lvalue()->is_typed(cdk::TYPE_STRING) && node->rvalue()->is_typed(cdk::TYPE_STRING)) {
       node->type(cdk::primitive_type::create(4, cdk::TYPE_STRING));
   } else if (node->lvalue()->is_typed(cdk::TYPE_POINTER)) {
-    //TODO: check pointer level
+
     if (node->rvalue()->is_typed(cdk::TYPE_POINTER)) {
+      checkPointer(node->lvalue()->type(), node->rvalue()->type());
       node->type(node->rvalue()->type());
-    } else if (node->rvalue()->is_typed(cdk::TYPE_INT)) {
-      //TODO: check that the integer is a literal and that it is zero
-      node->type(cdk::primitive_type::create(4, cdk::TYPE_POINTER));
     } else {
       throw std::string("wrong assignment to pointer");
     }
@@ -352,7 +366,6 @@ void fir::type_checker::do_return_node(fir::return_node *const node, int lvl) {
 
 //---------------------------------------------------------------------------
 
-
 void fir::type_checker::do_block_node(fir::block_node *const node, int lvl) {
   // EMPTY
 }
@@ -377,9 +390,10 @@ void fir::type_checker::do_variable_declaration_node(fir::variable_declaration_n
         throw std::string("wrong type for initializer (string expected).");
       }
     } else if (node->is_typed(cdk::TYPE_POINTER)) {
+      checkPointer(node->type(), node->initializer()->type());
+
       if (!node->initializer()->is_typed(cdk::TYPE_POINTER)) {
         throw std::string("wrong type for initializer (pointer expected).");
-        // TODO check nullptr case
       }
     } else {
       throw std::string("unknown type for initializer.");
@@ -387,7 +401,7 @@ void fir::type_checker::do_variable_declaration_node(fir::variable_declaration_n
   }
 
   const std::string &id = node->identifier();
-  auto symbol = fir::make_symbol(node->qualifier(), node->type(), id, (bool)node->initializer(), false, 0);
+  auto symbol = fir::make_symbol(node->qualifier(), node->type(), id, (bool)node->initializer(), false);
 
   if (_symtab.insert(id, symbol)) {
     _parent->set_new_symbol(symbol);
@@ -411,7 +425,7 @@ void fir::type_checker::do_function_declaration_node(fir::function_declaration_n
     id = node->identifier();
 
   // remember symbol so that args know
-  auto function = fir::make_symbol(node->qualifier(), node->type(), id, false, true, 0, true);
+  auto function = fir::make_symbol(node->qualifier(), node->type(), id, false, true, true);
 
   if (node->arguments()) {
     std::vector <std::shared_ptr<cdk::basic_type>> argtypes;
@@ -450,7 +464,7 @@ void fir::type_checker::do_function_definition_node(fir::function_definition_nod
 
   _inBlockReturnType = nullptr;
 
-  auto function = fir::make_symbol(node->qualifier(), node->type(), id, (bool)node->return_value(), true, 0);
+  auto function = fir::make_symbol(node->qualifier(), node->type(), id, (bool)node->return_value(), true);
 
   if (node->arguments()) {
     std::vector <std::shared_ptr<cdk::basic_type>> argtypes;
@@ -493,15 +507,13 @@ void fir::type_checker::do_function_definition_node(fir::function_definition_nod
         throw std::string("wrong type for return_value (string expected).");
       }
     } else if (node->is_typed(cdk::TYPE_POINTER)) {
+      std::cout << "yes its null" << std::endl;
       if (!node->return_value()->is_typed(cdk::TYPE_POINTER)) {
         throw std::string("wrong type for return_value (pointer expected).");
-        // TODO check nullptr case
       }
     } else {
       throw std::string("unknown type for return_value.");
     }
-  } else {
-    // TODO initialize ints and pointers
   }
 
   if (!node->prologue() && !node->block() && !node->epilogue()) {
@@ -523,7 +535,11 @@ void fir::type_checker::do_function_call_node(fir::function_call_node *const nod
     if (node->arguments()->size() == symbol->number_of_arguments()) {
       node->arguments()->accept(this, lvl + 4);
       for (size_t ax = 0; ax < node->arguments()->size(); ax++) {
-        if (node->argument(ax)->type() == symbol->argument_type(ax)) continue;
+        if (node->argument(ax)->type() == symbol->argument_type(ax)) {
+          if (node->argument(ax)->is_typed(cdk::TYPE_POINTER))
+            checkPointer(node->argument(ax)->type(), symbol->argument_type(ax));
+          continue;
+        }
         if (symbol->argument_is_typed(ax, cdk::TYPE_DOUBLE) && node->argument(ax)->is_typed(cdk::TYPE_INT)) continue;
         throw std::string("type mismatch for argument " + std::to_string(ax + 1) + " of '" + id + "'.");
       }

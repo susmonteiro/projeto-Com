@@ -29,6 +29,7 @@ namespace fir {
       type(functionType);
     }
 
+    // TODO delete this?
     function_definition_node(int lineno, const std::string &identifier, int qualifier, std::shared_ptr<cdk::basic_type> functionType,
                               cdk::sequence_node *arguments,
                               fir::prologue_node *prologue, fir::block_node *block, fir::block_node *epilogue) :

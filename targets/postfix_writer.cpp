@@ -287,7 +287,7 @@ void fir::postfix_writer::do_assignment_node(cdk::assignment_node * const node, 
     _pf.DUP32();
   }
 
-  if (new_symbol() == nullptr) node->lvalue()->accept(this, lvl); // TODO not necessary? 
+  node->lvalue()->accept(this, lvl);
 
   if (node->type()->name() == cdk::TYPE_DOUBLE) {
     _pf.STDOUBLE();
@@ -338,7 +338,7 @@ void fir::postfix_writer::do_print_node(fir::print_node * const node, int lvl) {
 //---------------------------------------------------------------------------
 
 void fir::postfix_writer::do_read_node(fir::read_node * const node, int lvl) {
-  ASSERT_SAFE_EXPRESSIONS;  // TODO check this not needed right?
+  ASSERT_SAFE_EXPRESSIONS;
   
   if (node->type()->name() == cdk::TYPE_DOUBLE) {
     _functions_to_declare.insert("readd");
@@ -611,19 +611,25 @@ void fir::postfix_writer::do_function_definition_node(fir::function_definition_n
   _function->set_offset(_offset);
   // initialize return variable
   if (node->return_value()) {
-      node->return_value()->accept(this, lvl);
-      if (node->is_typed(cdk::TYPE_INT) || node->is_typed(cdk::TYPE_STRING) || node->is_typed(cdk::TYPE_POINTER)) {
-        _pf.LOCAL(_function->offset());
-        _pf.STINT();
-      } else if (node->is_typed(cdk::TYPE_DOUBLE)) {
-        if (node->return_value()->is_typed(cdk::TYPE_INT))
-          _pf.I2D();
-        _pf.LOCAL(_function->offset());
-        _pf.STDOUBLE();
-      } else {
-        error(node->lineno(), "cannot initialize return value");
-      }
-    } 
+    node->return_value()->accept(this, lvl);
+    if (node->is_typed(cdk::TYPE_INT) || node->is_typed(cdk::TYPE_STRING) || node->is_typed(cdk::TYPE_POINTER)) {
+      _pf.LOCAL(_function->offset());
+      _pf.STINT();
+    } else if (node->is_typed(cdk::TYPE_DOUBLE)) {
+      if (node->return_value()->is_typed(cdk::TYPE_INT))
+        _pf.I2D();
+      _pf.LOCAL(_function->offset());
+      _pf.STDOUBLE();
+    } else {
+      error(node->lineno(), "cannot initialize return value");
+    }
+  } else {
+    if (node->is_typed(cdk::TYPE_INT) || node->is_typed(cdk::TYPE_POINTER)) {
+      _pf.INT(0);
+      _pf.LOCAL(_function->offset());
+      _pf.STINT();
+    }
+  } 
 
   if (node->prologue()) {
     _prologue = true;
@@ -651,7 +657,6 @@ void fir::postfix_writer::do_function_definition_node(fir::function_definition_n
   _inFunctionBody = false;
 
 
-  // TODO should this be done somewhere else?
   // return_value
   if (_function->type()->name() != cdk::TYPE_VOID) {
       _pf.LOCAL(_function->offset());
@@ -746,7 +751,6 @@ void fir::postfix_writer::do_index_node(fir::index_node *const node, int lvl) {
 }
 
 void fir::postfix_writer::do_stack_alloc_node(fir::stack_alloc_node *const node, int lvl) {
-  ASSERT_SAFE_EXPRESSIONS; // TODO check this
   node->argument()->accept(this, lvl);
 
   std::shared_ptr<cdk::basic_type> btype = cdk::reference_type::cast(node->type())->referenced();
