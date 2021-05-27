@@ -113,25 +113,18 @@ void fir::postfix_writer::do_add_node(cdk::add_node * const node, int lvl) {
   if (node->type()->name() == cdk::TYPE_DOUBLE && node->left()->type()->name() == cdk::TYPE_INT) {
     _pf.I2D();
   } else if (node->type()->name() == cdk::TYPE_POINTER && node->left()->type()->name() == cdk::TYPE_INT) {
-    if (cdk::reference_type::cast(node->type())->referenced()->name() == cdk::TYPE_DOUBLE) {
-      _pf.INT(3);
-    } else {
-      _pf.INT(2);
-    }
-    _pf.SHTL();
+    std::shared_ptr<cdk::basic_type> ltype = cdk::reference_type::cast(node->type())->referenced();
+    _pf.INT(ltype->size());
+    _pf.MUL();
   }
-
 
   node->right()->accept(this, lvl + 2);
   if (node->type()->name() == cdk::TYPE_DOUBLE && node->right()->type()->name() == cdk::TYPE_INT) {
     _pf.I2D();
   } else if (node->type()->name() == cdk::TYPE_POINTER && node->right()->type()->name() == cdk::TYPE_INT) {
-    if (cdk::reference_type::cast(node->type())->referenced()->name() == cdk::TYPE_DOUBLE) {
-      _pf.INT(3);
-    } else {
-      _pf.INT(2);
-    }
-    _pf.SHTL();
+    std::shared_ptr<cdk::basic_type> rtype = cdk::reference_type::cast(node->type())->referenced();
+    _pf.INT(rtype->size());
+    _pf.MUL();
   }
 
   if (node->type()->name() == cdk::TYPE_DOUBLE)
@@ -150,18 +143,21 @@ void fir::postfix_writer::do_sub_node(cdk::sub_node * const node, int lvl) {
   if (node->type()->name() == cdk::TYPE_DOUBLE && node->right()->type()->name() == cdk::TYPE_INT) {
     _pf.I2D();
   } else if (node->type()->name() == cdk::TYPE_POINTER && node->right()->type()->name() == cdk::TYPE_INT) {
-    if (cdk::reference_type::cast(node->type())->referenced()->name() == cdk::TYPE_DOUBLE) {
-      _pf.INT(3);
-    } else {
-      _pf.INT(2);
-    }
-    _pf.SHTL();
+    std::shared_ptr<cdk::basic_type> ltype = cdk::reference_type::cast(node->type())->referenced();
+    _pf.INT(ltype->size());
+    _pf.MUL();
   }
 
   if (node->type()->name() == cdk::TYPE_DOUBLE)
     _pf.DSUB();
   else
     _pf.SUB();
+
+  if (node->left()->is_typed(cdk::TYPE_POINTER) && node->right()->is_typed(cdk::TYPE_POINTER)) {
+    std::shared_ptr<cdk::basic_type> btype = cdk::reference_type::cast(node->type())->referenced();
+    _pf.INT(btype->size());
+    _pf.DIV();
+  }
 }
 
 void fir::postfix_writer::do_mul_node(cdk::mul_node * const node, int lvl) {
@@ -742,12 +738,8 @@ void fir::postfix_writer::do_index_node(fir::index_node *const node, int lvl) {
     }
   }
   node->index()->accept(this, lvl);
-  if (cdk::reference_type::cast(node->base()->type())->referenced()->name() == cdk::TYPE_DOUBLE) {
-    _pf.INT(3);
-  } else {
-    _pf.INT(2);
-  }
-  _pf.SHTL();
+  _pf.INT(node->type()->size());
+  _pf.MUL();
   _pf.ADD(); // add pointer and index
 }
 
@@ -755,15 +747,10 @@ void fir::postfix_writer::do_stack_alloc_node(fir::stack_alloc_node *const node,
   ASSERT_SAFE_EXPRESSIONS; // TODO check this
   node->argument()->accept(this, lvl);
 
-  std::shared_ptr<cdk::reference_type> btype = cdk::reference_type::cast(node->type());
+  std::shared_ptr<cdk::basic_type> btype = cdk::reference_type::cast(node->type())->referenced();
 
-  // std::cout << cdk::TYPE_DOUBLE << "\t" << cdk::reference_type::cast(btype->referenced())->referenced()->name() << std::endl;  // TODO remove this
-  if (cdk::reference_type::cast(btype->referenced())->referenced()->name() == cdk::TYPE_DOUBLE) {
-    _pf.INT(3);
-  } else {
-    _pf.INT(2);
-  }
-  _pf.SHTL();
+  _pf.INT(btype->size());
+  _pf.MUL();
   _pf.ALLOC(); // allocate
   _pf.SP(); // put base pointer in stack
 }

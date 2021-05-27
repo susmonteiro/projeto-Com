@@ -174,42 +174,55 @@ void fir::type_checker::do_add_node(cdk::add_node *const node, int lvl) {
     processPIDBinaryExpression(node, lvl);
   }
 }
+
 void fir::type_checker::do_sub_node(cdk::sub_node *const node, int lvl) {
   ASSERT_UNSPEC;
   node->left()->accept(this, lvl + 2);
   node->right()->accept(this, lvl + 2);
   // only possible in sub
   if (node->left()->is_typed(cdk::TYPE_POINTER) && node->right()->is_typed(cdk::TYPE_POINTER)) {
+    std::shared_ptr<cdk::basic_type> ltype = cdk::reference_type::cast(node->left()->type())->referenced();
+    std::shared_ptr<cdk::basic_type> rtype = cdk::reference_type::cast(node->right()->type())->referenced();
+    if (ltype->name() != rtype->name())
+      throw std::string("can only subtract pointers of same type");
     node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
   } else {
     processPIDBinaryExpression(node, lvl);
   }
-
 }
+
 void fir::type_checker::do_mul_node(cdk::mul_node *const node, int lvl) {
   processIDBinaryExpression(node, lvl);
 }
+
 void fir::type_checker::do_div_node(cdk::div_node *const node, int lvl) {
   processIDBinaryExpression(node, lvl);
 }
+
 void fir::type_checker::do_mod_node(cdk::mod_node *const node, int lvl) {
   processIntegerBinaryExpression(node, lvl);
 }
+
 void fir::type_checker::do_lt_node(cdk::lt_node *const node, int lvl) {
   processScalarLogicExpression(node, lvl);
 }
+
 void fir::type_checker::do_le_node(cdk::le_node *const node, int lvl) {
   processScalarLogicExpression(node, lvl);
 }
+
 void fir::type_checker::do_ge_node(cdk::ge_node *const node, int lvl) {
   processScalarLogicExpression(node, lvl);
 }
+
 void fir::type_checker::do_gt_node(cdk::gt_node *const node, int lvl) {
   processScalarLogicExpression(node, lvl);
 }
+
 void fir::type_checker::do_ne_node(cdk::ne_node *const node, int lvl) {
   processGeneralLogicExpression(node, lvl);
 }
+
 void fir::type_checker::do_eq_node(cdk::eq_node *const node, int lvl) {
   processGeneralLogicExpression(node, lvl);
 }
@@ -235,7 +248,7 @@ void fir::type_checker::do_rvalue_node(cdk::rvalue_node *const node, int lvl) {
     node->lvalue()->accept(this, lvl);
     node->type(node->lvalue()->type());
   } catch (const std::string &id) {
-    throw "undeclared variable '" + id + "'";
+    throw std::string("undeclared variable '" + id + "'");
   }
 }
 
@@ -286,7 +299,8 @@ void fir::type_checker::do_print_node(fir::print_node *const node, int lvl) {
 //---------------------------------------------------------------------------
 
 void fir::type_checker::do_read_node(fir::read_node *const node, int lvl) {
-  node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
+  node->type(_lvalue_type); // TODO check all places it can be used
+  _lvalue_type = nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -551,7 +565,14 @@ void fir::type_checker::do_stack_alloc_node(fir::stack_alloc_node *const node, i
     throw std::string("integer expression expected in allocation expression");
   }
 
-  node->type(cdk::reference_type::create(4, _lvalue_type));
+  if (_lvalue_type == nullptr) {
+    throw std::string("unexpected stack alloc");
+  } else if (_lvalue_type->name() != cdk::TYPE_POINTER) {
+    node->type(cdk::primitive_type::create(0, cdk::TYPE_UNSPEC));
+  } else {
+    node->type(_lvalue_type);
+  }
+  _lvalue_type = nullptr; // remove last value so that it is not used again
 }
 
 void fir::type_checker::do_prologue_node(fir::prologue_node *const node, int lvl) {
