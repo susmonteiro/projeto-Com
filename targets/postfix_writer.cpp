@@ -731,12 +731,9 @@ void fir::postfix_writer::do_index_node(fir::index_node *const node, int lvl) {
   if (node->base()) {
     node->base()->accept(this, lvl);
   } else {
-    if (_function) {
-      _pf.LOCV(-_function->type()->size()); // TODO check this
-    } else {
-      std::cerr << "FATAL: " << node->lineno() << ": trying to use return value outside function" << std::endl;
-    }
+    error(node->lineno(), "index node with no base");
   }
+
   node->index()->accept(this, lvl);
   _pf.INT(node->type()->size());
   _pf.MUL();

@@ -554,7 +554,6 @@ void fir::type_checker::do_index_node(fir::index_node *const node, int lvl) {
   if (!node->index()->is_typed(cdk::TYPE_INT)) throw std::string("integer expression expected in left-value index");
 
   node->type(btype->referenced());
-
 }
 
 void fir::type_checker::do_stack_alloc_node(fir::stack_alloc_node *const node, int lvl) {
