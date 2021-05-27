@@ -16,11 +16,10 @@ namespace fir {
     bool _initialized;
     int _offset = 0;
     bool _function;
-    long _value; // hack! TODO change this? not necessary?
     bool _forward = false;
 
   public:
-    symbol(int qualifier, std::shared_ptr<cdk::basic_type> type, const std::string &name, bool initialized, bool function, long value, bool forward = false) :
+    symbol(int qualifier, std::shared_ptr<cdk::basic_type> type, const std::string &name, bool initialized, bool function, bool forward = false) :
         _qualifier(qualifier), _type(type), _name(name), _initialized(initialized), _function(function), _forward(forward) {
     }
 

@@ -474,7 +474,6 @@ void fir::postfix_writer::do_variable_declaration_node(fir::variable_declaration
     offset = _offset;
     _offset += typesize;
   } else {
-
     offset = 0; // global variable
   }
 
@@ -485,6 +484,8 @@ void fir::postfix_writer::do_variable_declaration_node(fir::variable_declaration
   }
 
   if (_inFunctionBody) {
+    if (node->qualifier() != tPRIVATE)
+      error(node->lineno(), "cannot use qualifiers inside functions");
     // if we are dealing with local variables, then no action is needed
     // unless an initializer exists
     if (node->initializer()) {
@@ -506,12 +507,14 @@ void fir::postfix_writer::do_variable_declaration_node(fir::variable_declaration
       if (node->initializer() == nullptr) {
         _pf.BSS();
         _pf.ALIGN();
+        if (node->qualifier() == tPUBLIC) _pf.GLOBAL(symbol->name(), _pf.OBJ());
         _pf.LABEL(id);
         _pf.SALLOC(typesize);
       } else {
         if (node->is_typed(cdk::TYPE_INT) || node->is_typed(cdk::TYPE_DOUBLE) || node->is_typed(cdk::TYPE_POINTER)) {
           _pf.DATA();
           _pf.ALIGN();
+          if (node->qualifier() == tPUBLIC) _pf.GLOBAL(symbol->name(), _pf.OBJ());
           _pf.LABEL(id);
 
           if (node->is_typed(cdk::TYPE_INT)) {
@@ -532,6 +535,7 @@ void fir::postfix_writer::do_variable_declaration_node(fir::variable_declaration
         } else if (node->is_typed(cdk::TYPE_STRING)) {
           _pf.DATA();
           _pf.ALIGN();
+          if (node->qualifier() == tPUBLIC) _pf.GLOBAL(symbol->name(), _pf.OBJ());
           _pf.LABEL(id);
           node->initializer()->accept(this, lvl);
         } else {

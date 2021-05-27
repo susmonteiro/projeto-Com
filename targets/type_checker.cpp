@@ -308,7 +308,6 @@ void fir::type_checker::do_evaluation_node(fir::evaluation_node *const node, int
 }
 
 void fir::type_checker::do_print_node(fir::print_node *const node, int lvl) {
-  _lvalue_type = cdk::primitive_type::create(4, cdk::TYPE_INT);
   node->arguments()->accept(this, lvl + 2);
 }
 
@@ -507,7 +506,6 @@ void fir::type_checker::do_function_definition_node(fir::function_definition_nod
         throw std::string("wrong type for return_value (string expected).");
       }
     } else if (node->is_typed(cdk::TYPE_POINTER)) {
-      std::cout << "yes its null" << std::endl;
       if (!node->return_value()->is_typed(cdk::TYPE_POINTER)) {
         throw std::string("wrong type for return_value (pointer expected).");
       }
