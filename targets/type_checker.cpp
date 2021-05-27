@@ -162,10 +162,7 @@ void fir::type_checker::processGeneralLogicExpression(cdk::binary_operation_node
 }
 
 void fir::type_checker::checkPointer(std::shared_ptr<cdk::basic_type> lptr, std::shared_ptr<cdk::basic_type> rptr){
-  std::shared_ptr<cdk::basic_type> ltype, rtype;
-
-  ltype = cdk::reference_type::cast(lptr)->referenced();
-  rtype = cdk::reference_type::cast(rptr)->referenced();
+  std::shared_ptr<cdk::basic_type> ltype = lptr, rtype = rptr;
 
   while (ltype->name() == cdk::TYPE_POINTER && rtype->name() == cdk::TYPE_POINTER) {
     ltype = cdk::reference_type::cast(ltype)->referenced();
@@ -289,7 +286,9 @@ void fir::type_checker::do_assignment_node(cdk::assignment_node *const node, int
   } else if (node->lvalue()->is_typed(cdk::TYPE_POINTER)) {
 
     if (node->rvalue()->is_typed(cdk::TYPE_POINTER)) {
-      checkPointer(node->lvalue()->type(), node->rvalue()->type());
+      // if rvalue is null, dont need to check level
+      if (dynamic_cast<fir::null_node *>(node->rvalue()) == nullptr)
+        checkPointer(node->lvalue()->type(), node->rvalue()->type());
       node->type(node->rvalue()->type());
     } else {
       throw std::string("wrong assignment to pointer");
@@ -389,7 +388,10 @@ void fir::type_checker::do_variable_declaration_node(fir::variable_declaration_n
         throw std::string("wrong type for initializer (string expected).");
       }
     } else if (node->is_typed(cdk::TYPE_POINTER)) {
-      checkPointer(node->type(), node->initializer()->type());
+      
+      // if rvalue is null, dont need to check level
+      if (dynamic_cast<fir::null_node *>(node->initializer()) == nullptr)
+        checkPointer(node->type(), node->initializer()->type());
 
       if (!node->initializer()->is_typed(cdk::TYPE_POINTER)) {
         throw std::string("wrong type for initializer (pointer expected).");
@@ -534,8 +536,11 @@ void fir::type_checker::do_function_call_node(fir::function_call_node *const nod
       node->arguments()->accept(this, lvl + 4);
       for (size_t ax = 0; ax < node->arguments()->size(); ax++) {
         if (node->argument(ax)->type() == symbol->argument_type(ax)) {
-          if (node->argument(ax)->is_typed(cdk::TYPE_POINTER))
-            checkPointer(node->argument(ax)->type(), symbol->argument_type(ax));
+          if (node->argument(ax)->is_typed(cdk::TYPE_POINTER)) {
+            // if rvalue is null, dont need to check level
+            if (dynamic_cast<fir::null_node *>(node->argument(ax)) == nullptr)
+              checkPointer(node->argument(ax)->type(), symbol->argument_type(ax));  
+          }
           continue;
         }
         if (symbol->argument_is_typed(ax, cdk::TYPE_DOUBLE) && node->argument(ax)->is_typed(cdk::TYPE_INT)) continue;
@@ -580,17 +585,19 @@ void fir::type_checker::do_index_node(fir::index_node *const node, int lvl) {
 void fir::type_checker::do_stack_alloc_node(fir::stack_alloc_node *const node, int lvl) {
   ASSERT_UNSPEC;
 
-  node->argument()->accept(this, lvl + 2);
-  if (!node->argument()->is_typed(cdk::TYPE_INT)) {
-    throw std::string("integer expression expected in allocation expression");
-  }
-
   if (_lvalue_type == nullptr) {
     throw std::string("unexpected stack alloc");
   } else if (_lvalue_type->name() != cdk::TYPE_POINTER) {
     node->type(cdk::primitive_type::create(0, cdk::TYPE_UNSPEC));
   } else {
     node->type(_lvalue_type);
+  }
+
+  _lvalue_type = nullptr;
+
+  node->argument()->accept(this, lvl + 2);
+  if (!node->argument()->is_typed(cdk::TYPE_INT)) {
+    throw std::string("integer expression expected in allocation expression");
   }
 }
 

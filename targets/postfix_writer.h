@@ -16,7 +16,7 @@ namespace fir {
   class postfix_writer: public basic_ast_visitor {
     cdk::symbol_table<fir::symbol> &_symtab;
 
-    std::set<std::string> _functions_to_declare;
+    std::set<std::string> _functions_to_declare, _variables_to_declare;
 
     bool _errors, _inFunction, _inFunctionName, _inFunctionArgs, _inFunctionBody;
     bool _prologue = false;

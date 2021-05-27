@@ -450,9 +450,12 @@ void fir::postfix_writer::do_return_node(fir::return_node * const node, int lvl)
 //---------------------------------------------------------------------------
 
 void fir::postfix_writer::do_block_node(fir::block_node * const node, int lvl) {
-  if (!_prologue) _symtab.push(); // TODO what if inside while
+  bool _insidePrologue = _prologue; // keep context
+  if (!_prologue) _symtab.push();
+  _prologue = false;
   if (node->declarations()) node->declarations()->accept(this, lvl + 2);
   if (node->instructions()) node->instructions()->accept(this, lvl + 2);
+  _prologue = _insidePrologue;
   if (!_prologue) _symtab.pop();
 }
 
@@ -505,11 +508,15 @@ void fir::postfix_writer::do_variable_declaration_node(fir::variable_declaration
   } else {
     if (!_function) {
       if (node->initializer() == nullptr) {
-        _pf.BSS();
-        _pf.ALIGN();
-        if (node->qualifier() == tPUBLIC) _pf.GLOBAL(symbol->name(), _pf.OBJ());
-        _pf.LABEL(id);
-        _pf.SALLOC(typesize);
+        if (node->qualifier() == tEXTERN) {
+          _variables_to_declare.insert(symbol->name());
+        } else {
+          _pf.BSS();
+          _pf.ALIGN();
+          if (node->qualifier() == tPUBLIC) _pf.GLOBAL(symbol->name(), _pf.OBJ());
+          _pf.LABEL(id);
+          _pf.SALLOC(typesize);
+        }
       } else {
         if (node->is_typed(cdk::TYPE_INT) || node->is_typed(cdk::TYPE_DOUBLE) || node->is_typed(cdk::TYPE_POINTER)) {
           _pf.DATA();
@@ -683,9 +690,13 @@ void fir::postfix_writer::do_function_definition_node(fir::function_definition_n
   _symtab.pop(); // scope of arguments
 
   if (node->identifier() == "fir") {
+    // declare external variables
+    for (std::string s : _variables_to_declare)
+      _pf.EXTERN(s);
     // declare external functions
     for (std::string s : _functions_to_declare)
       _pf.EXTERN(s);
+
   }
 }
 
