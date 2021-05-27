@@ -16,23 +16,13 @@ namespace fir {
     bool _initialized;
     int _offset = 0;
     bool _function;
-    long _value; // hack! TODO change this?
+    long _value; // hack! TODO change this? not necessary?
     bool _forward = false;
 
   public:
     symbol(int qualifier, std::shared_ptr<cdk::basic_type> type, const std::string &name, bool initialized, bool function, long value, bool forward = false) :
         _qualifier(qualifier), _type(type), _name(name), _initialized(initialized), _function(function), _value(value), _forward(forward) {
     }
-
-    symbol(std::shared_ptr<cdk::basic_type> type, const std::string &name, int qualifier) :
-        _qualifier(qualifier), _type(type), _name(name) {
-    }
-
-    // TODO remove this
-    /* symbol(bool constant, int qualifier, std::shared_ptr<cdk::basic_type> type, const std::string &name, bool initialized,
-           bool function, bool forward = false) :
-        _name(name), _value(0), _constant(constant), _qualifier(qualifier), _type(type), _initialized(initialized), _function(
-            function), _forward(forward) { */
 
     virtual ~symbol() {
       // EMPTY

@@ -19,7 +19,6 @@ namespace fir {
     std::set<std::string> _functions_to_declare;
 
     bool _errors, _inFunction, _inFunctionName, _inFunctionArgs, _inFunctionBody;
-    bool _returnSeen = false; // when building a function TODO needed?
     bool _prologue = false;
     std::stack<int> _whileIni, _whileEnd; // while break/repeat
     std::shared_ptr<fir::symbol> _function;     // for keeping track of the current function and its arguments
@@ -57,6 +56,9 @@ namespace fir {
       std::cerr << "error: " << lineno << ": " << s << std::endl;
       exit(1);
     }
+
+  protected:
+    void compareDouble(cdk::binary_operation_node *const node, int lvl);
 
   public:
   // do not edit these lines

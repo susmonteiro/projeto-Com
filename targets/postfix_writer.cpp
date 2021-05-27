@@ -197,46 +197,56 @@ void fir::postfix_writer::do_mod_node(cdk::mod_node * const node, int lvl) {
   _pf.MOD();
 }
 
-void fir::postfix_writer::do_lt_node(cdk::lt_node * const node, int lvl) {
-  // TODO DMCP?
-  ASSERT_SAFE_EXPRESSIONS;
+void fir::postfix_writer::compareDouble(cdk::binary_operation_node *const node, int lvl) {
   node->left()->accept(this, lvl);
+  if (node->type()->name() == cdk::TYPE_DOUBLE && node->left()->type()->name() == cdk::TYPE_INT) {
+    _pf.I2D();
+  }
+
   node->right()->accept(this, lvl);
+  if (node->type()->name() == cdk::TYPE_INT && node->left()->type()->name() == cdk::TYPE_DOUBLE) {
+    _pf.I2D();
+  }
+
+  if (node->type()->name() == cdk::TYPE_DOUBLE || node->left()->type()->name() == cdk::TYPE_DOUBLE) {
+    _pf.DCMP();
+    _pf.INT(0);
+  }
+}
+
+void fir::postfix_writer::do_lt_node(cdk::lt_node * const node, int lvl) {
+  ASSERT_SAFE_EXPRESSIONS;
+  compareDouble(node, lvl);
   _pf.LT();
 }
 
 void fir::postfix_writer::do_le_node(cdk::le_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
-  node->left()->accept(this, lvl);
-  node->right()->accept(this, lvl);
+  compareDouble(node, lvl);
   _pf.LE();
 }
 
 void fir::postfix_writer::do_ge_node(cdk::ge_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
-  node->left()->accept(this, lvl);
-  node->right()->accept(this, lvl);
+  compareDouble(node, lvl);
   _pf.GE();
 }
 
 void fir::postfix_writer::do_gt_node(cdk::gt_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
-  node->left()->accept(this, lvl);
-  node->right()->accept(this, lvl);
+  compareDouble(node, lvl);
   _pf.GT();
 }
 
 void fir::postfix_writer::do_ne_node(cdk::ne_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
-  node->left()->accept(this, lvl);
-  node->right()->accept(this, lvl);
+  compareDouble(node, lvl);
   _pf.NE();
 }
 
 void fir::postfix_writer::do_eq_node(cdk::eq_node * const node, int lvl) {
   ASSERT_SAFE_EXPRESSIONS;
-  node->left()->accept(this, lvl);
-  node->right()->accept(this, lvl);
+  compareDouble(node, lvl);
   _pf.EQ();
 }
 
@@ -328,7 +338,7 @@ void fir::postfix_writer::do_print_node(fir::print_node * const node, int lvl) {
 //---------------------------------------------------------------------------
 
 void fir::postfix_writer::do_read_node(fir::read_node * const node, int lvl) {
-  //ASSERT_SAFE_EXPRESSIONS;  // TODO check this not needed right?
+  ASSERT_SAFE_EXPRESSIONS;  // TODO check this not needed right?
   
   if (node->type()->name() == cdk::TYPE_DOUBLE) {
     _functions_to_declare.insert("readd");
@@ -405,7 +415,7 @@ void fir::postfix_writer::do_leave_node(fir::leave_node * const node, int lvl) {
   aux = _whileEnd;
   
   for (int i = 0; i < node->level() - 1; i++) {
-    if (_whileIni.size() != 0) {
+    if (aux.size() != 0) {
       aux.pop();
     } else {
       error(node->lineno(), "'leave' outside while");
@@ -421,7 +431,7 @@ void fir::postfix_writer::do_restart_node(fir::restart_node * const node, int lv
   aux = _whileIni;
 
   for (int i = 0; i < node->level() - 1; i++) {
-    if (_whileIni.size() != 0) {
+    if (aux.size() != 0) {
       aux.pop();
     } else {
       error(node->lineno(), "'leave' outside while");
@@ -429,8 +439,6 @@ void fir::postfix_writer::do_restart_node(fir::restart_node * const node, int lv
   }
 
   _pf.JMP(mklbl(aux.top())); // jump to while end
-
-  // TODO sketchy. Better way?
 }
 
 //---------------------------------------------------------------------------
@@ -641,7 +649,6 @@ void fir::postfix_writer::do_function_definition_node(fir::function_definition_n
   }
   
   _inFunctionBody = false;
-  _returnSeen = false;  // TODO needed?
 
 
   // TODO should this be done somewhere else?
@@ -660,8 +667,6 @@ void fir::postfix_writer::do_function_definition_node(fir::function_definition_n
       error(node->lineno(), ": should not happen: unknown return type");
     }
   }
-
-  _returnSeen = true;
 
   _pf.LEAVE();
   _pf.RET();

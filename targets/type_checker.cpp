@@ -283,6 +283,8 @@ void fir::type_checker::do_assignment_node(cdk::assignment_node *const node, int
   } else {
     throw std::string("wrong types in assignment");
   }
+
+  _lvalue_type = nullptr; // remove last value so that it is not used again
 }
 
 //---------------------------------------------------------------------------
@@ -299,8 +301,13 @@ void fir::type_checker::do_print_node(fir::print_node *const node, int lvl) {
 //---------------------------------------------------------------------------
 
 void fir::type_checker::do_read_node(fir::read_node *const node, int lvl) {
-  node->type(_lvalue_type); // TODO check all places it can be used
-  _lvalue_type = nullptr;
+  if (!node->type()) {
+    if (_lvalue_type != nullptr) {
+      node->type(_lvalue_type);
+    } else {
+      node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
+    }
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -387,6 +394,7 @@ void fir::type_checker::do_variable_declaration_node(fir::variable_declaration_n
   } else {
     throw std::string("variable '" + id + "' redeclared");
   }
+  _lvalue_type = nullptr; // remove last value so that it is not used again
 }
 
 //---------------------------------------------------------------------------
@@ -496,7 +504,6 @@ void fir::type_checker::do_function_definition_node(fir::function_definition_nod
     // TODO initialize ints and pointers
   }
 
-  // TODO check if there's at least 1 prologue, body or epilogue
   if (!node->prologue() && !node->block() && !node->epilogue()) {
     throw std::string("at least one of the parts is needed");
   }
@@ -571,7 +578,6 @@ void fir::type_checker::do_stack_alloc_node(fir::stack_alloc_node *const node, i
   } else {
     node->type(_lvalue_type);
   }
-  _lvalue_type = nullptr; // remove last value so that it is not used again
 }
 
 void fir::type_checker::do_prologue_node(fir::prologue_node *const node, int lvl) {
