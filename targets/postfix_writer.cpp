@@ -199,16 +199,16 @@ void fir::postfix_writer::do_mod_node(cdk::mod_node * const node, int lvl) {
 
 void fir::postfix_writer::compareDouble(cdk::binary_operation_node *const node, int lvl) {
   node->left()->accept(this, lvl);
-  if (node->type()->name() == cdk::TYPE_DOUBLE && node->left()->type()->name() == cdk::TYPE_INT) {
+  if (node->right()->is_typed(cdk::TYPE_DOUBLE) && node->left()->is_typed(cdk::TYPE_INT)) {
     _pf.I2D();
   }
 
   node->right()->accept(this, lvl);
-  if (node->type()->name() == cdk::TYPE_INT && node->left()->type()->name() == cdk::TYPE_DOUBLE) {
+  if (node->right()->is_typed(cdk::TYPE_INT) && node->left()->is_typed(cdk::TYPE_DOUBLE)) {
     _pf.I2D();
   }
 
-  if (node->type()->name() == cdk::TYPE_DOUBLE || node->left()->type()->name() == cdk::TYPE_DOUBLE) {
+  if (node->right()->is_typed(cdk::TYPE_DOUBLE) || node->left()->is_typed(cdk::TYPE_DOUBLE)) {
     _pf.DCMP();
     _pf.INT(0);
   }
