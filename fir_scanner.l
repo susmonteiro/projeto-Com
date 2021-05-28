@@ -111,23 +111,21 @@
 <X_TILDE>n             *yylval.s += '\n'; yy_pop_state();
 <X_TILDE>r             *yylval.s += '\r'; yy_pop_state();
 <X_TILDE>t             *yylval.s += '\t'; yy_pop_state();
-<X_TILDE>'             *yylval.s += '\''; yy_pop_state();
+<X_TILDE>\'            yy_pop_state(); yyless(yyleng-1);
 <X_TILDE>\~            *yylval.s += '~'; yy_pop_state();
 
 <X_TILDE>[[:xdigit:]]{1,2} {
                             if ((char)(unsigned char)strtoul(yytext, NULL, 16) == 0) {
-                              std::cout << "hey" << std::endl;
                               yy_push_state(X_IGNORE);
                             } else {
                               *yylval.s += (char)(unsigned char)strtoul(yytext, NULL, 16);
+                              yy_pop_state();
                             }
-                            yy_pop_state();
                            }
-<X_TILDE>\'               yy_pop_state(); yyless(yyleng-1);
 <X_TILDE>\n               yyerror("newline in string");
 <X_TILDE>.                *yylval.s += *yytext; yy_pop_state(); 
 
-<X_IGNORE>\'              yyless(yyleng-1); yy_pop_state(); std::cout << "hey" << std::endl; // ignore
+<X_IGNORE>\'              yy_pop_state(); yyless(yyleng-1);
 <X_IGNORE>\n              yyerror("newline in string");
 <X_IGNORE>.               ;
 
