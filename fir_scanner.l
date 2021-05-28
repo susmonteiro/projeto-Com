@@ -68,7 +68,20 @@
 
   /* === INTEGERS === */
 
-0[0-7]+                {
+
+[1-9][0-9]*            {
+                         try {
+                           yylval.i = strtoul(yytext, NULL, 10); return tINTEGER;
+                         } catch (std::out_of_range& e) {
+                           yyerror("Integer out of range.");
+                         }
+                       }
+                       
+[0]+                   { yylval.i = 0; return tINTEGER; }
+
+0[0-7]*[8-9]+          std::cerr << "WARNING: line " << lineno() << ": bad octal data!" << std::endl; exit(1);
+
+[0]+[1-7][0-7]+        {
                          try {
                            yylval.i = strtoul(yytext, NULL, 8); return tINTEGER;
                          } catch (std::out_of_range& e) {
@@ -76,20 +89,21 @@
                          }
                        }
 
-0[0-9]+                std::cerr << "WARNING: line " << lineno() << ": bad octal data!" << std::endl; exit(1);
 
 
-[0-9]+                 {
-                         try {
-                           yylval.i = strtoul(yytext, NULL, 10); return tINTEGER;
-                         } catch (std::out_of_range& e) {
-                           yyerror("Integer out of range.");
-                         }
-                       }
+
 
   /* === REALS === */
 
-([0-9]+|[0-9]*\.[0-9]+|[0-9]+\.[0-9]*)([eE][-+]?[0-9]+)? {
+(0|[1-9][0-9]*)([eE][-+]?[0-9]+)                  {
+                                                    try {
+                                                      yylval.d = strtod(yytext, NULL); return tREAL;
+                                                    } catch (std::out_of_range& e) {
+                                                      yyerror("Float out of range.");
+                                                    }
+                                                  }
+
+([0-9]*\.[0-9]+|[0-9]+\.[0-9]*)([eE][-+]?[0-9]+)? {
                                                     try {
                                                       yylval.d = strtod(yytext, NULL); return tREAL;
                                                     } catch (std::out_of_range& e) {
