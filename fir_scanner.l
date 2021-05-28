@@ -81,7 +81,7 @@
 
 0[0-7]*[8-9]+          std::cerr << "WARNING: line " << lineno() << ": bad octal data!" << std::endl; exit(1);
 
-[0]+[1-7][0-7]+        {
+[0]+[1-7][0-7]*        {
                          try {
                            yylval.i = strtoul(yytext, NULL, 8); return tINTEGER;
                          } catch (std::out_of_range& e) {
@@ -95,7 +95,7 @@
 
   /* === REALS === */
 
-(0|[1-9][0-9]*)([eE][-+]?[0-9]+)                  {
+([0-9]*)([eE][-+]?[0-9]+)                         {
                                                     try {
                                                       yylval.d = strtod(yytext, NULL); return tREAL;
                                                     } catch (std::out_of_range& e) {
@@ -125,15 +125,14 @@
 <X_TILDE>n             *yylval.s += '\n'; yy_pop_state();
 <X_TILDE>r             *yylval.s += '\r'; yy_pop_state();
 <X_TILDE>t             *yylval.s += '\t'; yy_pop_state();
-<X_TILDE>\'            yy_pop_state(); yyless(yyleng-1);
 <X_TILDE>\~            *yylval.s += '~'; yy_pop_state();
 
 <X_TILDE>[[:xdigit:]]{1,2} {
+                            yy_pop_state();
                             if ((char)(unsigned char)strtoul(yytext, NULL, 16) == 0) {
                               yy_push_state(X_IGNORE);
                             } else {
                               *yylval.s += (char)(unsigned char)strtoul(yytext, NULL, 16);
-                              yy_pop_state();
                             }
                            }
 <X_TILDE>\n               yyerror("newline in string");

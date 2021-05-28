@@ -154,7 +154,7 @@ void fir::postfix_writer::do_sub_node(cdk::sub_node * const node, int lvl) {
     _pf.SUB();
 
   if (node->left()->is_typed(cdk::TYPE_POINTER) && node->right()->is_typed(cdk::TYPE_POINTER)) {
-    std::shared_ptr<cdk::basic_type> btype = cdk::reference_type::cast(node->type())->referenced();
+    std::shared_ptr<cdk::basic_type> btype = cdk::reference_type::cast(node->left()->type())->referenced(); 
     _pf.INT(btype->size());
     _pf.DIV();
   }

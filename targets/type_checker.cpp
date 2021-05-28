@@ -154,9 +154,9 @@ void fir::type_checker::processGeneralLogicExpression(cdk::binary_operation_node
   if (!node->right()->is_typed(cdk::TYPE_INT) && !node->right()->is_typed(cdk::TYPE_DOUBLE) && !node->right()->is_typed(cdk::TYPE_POINTER)) 
     throw std::string("wrong type in right argument of binary expression");
 
-  if (node->left()->type() != node->right()->type()) {
-    throw std::string("same type expected on both sides of equality operator");
-  }
+  if ((node->left()->is_typed(cdk::TYPE_POINTER) && !node->right()->is_typed(cdk::TYPE_POINTER))
+      || (!node->left()->is_typed(cdk::TYPE_POINTER) && node->right()->is_typed(cdk::TYPE_POINTER)))
+        throw std::string("can only compare pointers with pointers");
 
   node->type(cdk::primitive_type::create(4, cdk::TYPE_INT));
 }
